@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="__LANG__">
+<html lang="__LANG__" data-view="__VIEW__">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,6 +32,20 @@
     <option value="size" data-i18n="sort.size"></option>
     <option value="played" data-i18n="sort.played"></option>
   </select>
+  <div class="views" id="views" role="group" data-i18n-aria-label="view.label">
+    <button data-view="grid-s" data-i18n-title="view.grid_s" data-i18n-aria-label="view.grid_s">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 1h4v4H1zm5 0h4v4H6zm5 0h4v4h-4zM1 6h4v4H1zm5 0h4v4H6zm5 0h4v4h-4zM1 11h4v4H1zm5 0h4v4H6zm5 0h4v4h-4z"/></svg>
+    </button>
+    <button data-view="grid-m" data-i18n-title="view.grid_m" data-i18n-aria-label="view.grid_m">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 1h6v6H1zm8 0h6v6H9zM1 9h6v6H1zm8 0h6v6H9z"/></svg>
+    </button>
+    <button data-view="grid-l" data-i18n-title="view.grid_l" data-i18n-aria-label="view.grid_l">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 1h14v14H1z"/></svg>
+    </button>
+    <button data-view="list" data-i18n-title="view.list" data-i18n-aria-label="view.list">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 2h3v3H1zm5 .5h9v2H6zM1 6.5h3v3H1zm5 .5h9v2H6zM1 11h3v3H1zm5 .5h9v2H6z"/></svg>
+    </button>
+  </div>
 </div>
 <main>
   <div class="grid" id="grid"></div>

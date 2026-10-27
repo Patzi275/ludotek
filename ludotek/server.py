@@ -61,6 +61,7 @@ class Handler(BaseHTTPRequestHandler):
                 data = (data.replace(b"__TOKEN__", TOKEN.encode())
                         .replace(b"__VERSION__", __version__.encode())
                         .replace(b"__LANG__", config.LANGUAGE.encode())
+                        .replace(b"__VIEW__", api.current_view().encode())
                         .replace(b"__I18N__", _i18n_json()))
             return self._send(200, data, ctype)
         if path == "/api/library":

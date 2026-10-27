@@ -22,6 +22,10 @@ applyI18n();
 
 let state = {items: [], removed: []}, lastJson = "", filter = "all", sortBy = "name", query = "", openId = null;
 
+// Library layouts: same values as api.VIEWS (checked by tests). The saved one comes from <html data-view>.
+const VIEWS = ["grid-s", "grid-m", "grid-l", "list"];
+let view = VIEWS.includes(document.documentElement.dataset.view) ? document.documentElement.dataset.view : "grid-m";
+
 const STATUS = {"": "", todo: t("status.todo"), playing: t("status.playing"), done: t("status.done"), dropped: t("status.dropped")};
 const FILTERS = [
   ["all", t("filter.all"), () => true],
@@ -108,36 +112,62 @@ function render() {
   const q = query.trim().toLowerCase();
   const list = items.filter(i => fn(i) && (!q || (i.name + " " + i.file + " " + i.description).toLowerCase().includes(q))).sort(SORTS[sortBy]);
   $("#empty").hidden = list.length > 0;
-  $("#grid").innerHTML = list.map(it => {
-    const k = kindInfo(it);
-    const hue = parseInt(it.id.slice(0, 4), 16) % 360;
-    const meta = [fmtSize(it.size), it.source, fmtDate(it.added)].filter(Boolean).join(" · ");
-    return `<div class="card" data-id="${it.id}">
-      <div class="cover ${it.cover ? "has-img" : ""}" style="--h:${hue}">
-        ${it.cover ? `<img src="${esc(it.cover)}" alt="" loading="lazy">` : `<span class="initials">${esc(initials(it.name))}</span>`}
-        <button class="star ${it.favorite ? "on" : ""}" data-act="fav" title="${esc(t("card.favorite"))}" aria-label="${esc(t("card.favorite"))}" aria-pressed="${!!it.favorite}">★</button>
-        <div class="badges">
-          <span class="b ${k.cls}">${esc(k.label)}</span>
-          ${it.is_new ? `<span class="b new">${esc(t("card.new"))}</span>` : ""}
-          ${it.dup ? `<span class="b dup" title="${esc(t("card.dup_title"))}">${esc(t("card.dup"))}</span>` : ""}
-        </div>
-      </div>
-      <div class="body">
-        <div class="title" title="${esc(it.file)}">${esc(it.name)}</div>
-        <div class="meta">${esc(meta)}</div>
-        ${it.description ? `<div class="desc">${esc(it.description)}</div>` : ""}
-        ${it.status ? `<div class="status">${esc(STATUS[it.status] || "")}</div>` : ""}
-        <div class="actions">
-          <button class="btn ${k.cls === "ready" || k.cls === "exe" ? "primary" : ""}" data-act="${k.action}">${esc(k.act)}</button>
-          <button class="btn more" data-act="details" title="${esc(t("card.details"))}" aria-label="${esc(t("card.details"))}">⋯</button>
-        </div>
-      </div>
-    </div>`;
-  }).join("");
+  $("#grid").innerHTML = list.map(view === "list" ? rowHtml : cardHtml).join("");
 
   const rm = state.removed || [];
   $("#removedBox").hidden = !rm.length;
   $("#removed").innerHTML = rm.map(r => `<li>${esc(r.name)} <small>— ${esc(t("removed.item", {file: r.file, date: fmtDate(r.removed_at)}))}</small></li>`).join("");
+}
+
+// ---- item markup: a card (grid layouts) or a row (list). Both keep class "card" and
+// data-id, so clicks, favorites and cover drag and drop work the same in every layout.
+const hueOf = it => parseInt(it.id.slice(0, 4), 16) % 360;
+const metaOf = it => [fmtSize(it.size), it.source, fmtDate(it.added)].filter(Boolean).join(" · ");
+const coverInner = (it, lazy) => it.cover ? `<img src="${esc(it.cover)}" alt=""${lazy ? ' loading="lazy"' : ""}>`
+                                          : `<span class="initials">${esc(initials(it.name))}</span>`;
+const starHtml = it => `<button class="star ${it.favorite ? "on" : ""}" data-act="fav" title="${esc(t("card.favorite"))}" aria-label="${esc(t("card.favorite"))}" aria-pressed="${!!it.favorite}">★</button>`;
+const badgesHtml = (it, k) => `<span class="b ${k.cls}">${esc(k.label)}</span>
+  ${it.is_new ? `<span class="b new">${esc(t("card.new"))}</span>` : ""}
+  ${it.dup ? `<span class="b dup" title="${esc(t("card.dup_title"))}">${esc(t("card.dup"))}</span>` : ""}`;
+const statusHtml = it => it.status ? `<div class="status">${esc(STATUS[it.status] || "")}</div>` : "";
+const actionsHtml = k => `<button class="btn ${k.cls === "ready" || k.cls === "exe" ? "primary" : ""}" data-act="${k.action}"><span>${esc(k.act)}</span></button>
+  <button class="btn more" data-act="details" title="${esc(t("card.details"))}" aria-label="${esc(t("card.details"))}">⋯</button>`;
+
+function cardHtml(it) {
+  const k = kindInfo(it);
+  return `<div class="card" data-id="${it.id}">
+    <div class="cover ${it.cover ? "has-img" : ""}" style="--h:${hueOf(it)}">
+      ${coverInner(it, true)}
+      ${starHtml(it)}
+      <div class="badges">${badgesHtml(it, k)}</div>
+    </div>
+    <div class="body">
+      <div class="title" title="${esc(it.file)}">${esc(it.name)}</div>
+      <div class="meta">${esc(metaOf(it))}</div>
+      ${it.description ? `<div class="desc">${esc(it.description)}</div>` : ""}
+      ${statusHtml(it)}
+      <div class="actions">${actionsHtml(k)}</div>
+    </div>
+  </div>`;
+}
+
+function rowHtml(it) {
+  const k = kindInfo(it);
+  return `<div class="card row" data-id="${it.id}">
+    <div class="thumb cover ${it.cover ? "has-img" : ""}" style="--h:${hueOf(it)}">${coverInner(it, true)}</div>
+    <div class="row-main">
+      <div class="title" title="${esc(it.file)}">${esc(it.name)}</div>
+      <div class="meta">${esc(metaOf(it))}</div>
+      <div class="row-badges">${badgesHtml(it, k)}</div>
+    </div>
+    ${statusHtml(it)}
+    <div class="actions">${starHtml(it)}${actionsHtml(k)}</div>
+  </div>`;
+}
+
+function applyView() {
+  $("#grid").className = view === "list" ? "grid list" : `grid size-${view.slice(-1)}`;
+  document.querySelectorAll("#views [data-view]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
 }
 
 async function act(id, action) {
@@ -181,6 +211,11 @@ $("#chips").addEventListener("click", e => {
 });
 $("#search").addEventListener("input", e => { query = e.target.value; render(); });
 $("#sort").addEventListener("change", e => { sortBy = e.target.value; render(); });
+$("#views").addEventListener("click", e => {
+  const b = e.target.closest("[data-view]"); if (!b || b.dataset.view === view) return;
+  view = b.dataset.view; applyView(); render();
+  post("/api/settings", {view}).then(d => { if (d.warning) toast(d.warning); }).catch(err => toast(err.message));
+});
 $("#rescan").addEventListener("click", async () => { await post("/api/rescan"); await load(true); toast(t("toast.rescanned")); });
 $("#quit").addEventListener("click", async () => {
   if (!confirm(t("quit.confirm"))) return;
@@ -293,5 +328,6 @@ $("#setBrowse").addEventListener("click", async () => {
   catch (e) { toast(e.message); }
 });
 
+applyView();
 load(true);
 setInterval(load, 4000);

@@ -17,6 +17,10 @@ from .system import open_path, pick_folder, reveal_path
 log = logging.getLogger(__name__)
 OK = {"ok": True}
 
+# Library layouts offered by the UI (app.js VIEWS must list the same values; tests check it).
+VIEWS = ("grid-s", "grid-m", "grid-l", "list")
+DEFAULT_VIEW = "grid-m"
+
 # Fields the UI may change, each with its cleaning rule (type + size limit).
 UPDATABLE = {
     "favorite": bool,
@@ -32,6 +36,12 @@ class ApiError(Exception):
     def __init__(self, status, message):
         super().__init__(message)
         self.status = status
+
+
+def current_view():
+    """Saved library layout, or the default one."""
+    view = config.load_settings().get("view")
+    return view if view in VIEWS else DEFAULT_VIEW
 
 
 def chosen_exe(rec):
@@ -171,7 +181,7 @@ def uncover(iid, req):
 
 
 def settings(iid, req):
-    """Change the watched folder and/or the language, and remember them for the next launch.
+    """Change the watched folder, the language and/or the layout, and remember them for the next launch.
 
     Both fields are optional and validated before anything is applied.
     """
@@ -187,8 +197,10 @@ def settings(iid, req):
         lang = str(body["language"])
         if lang not in i18n.LANGUAGES:
             raise ApiError(400, t("error.bad_language", language=lang))
+    if "view" in body and body["view"] not in VIEWS:
+        raise ApiError(400, t("error.bad_view", view=str(body["view"])[:20]))
 
-    saved = {}
+    saved = {"view": body["view"]} if "view" in body else {}
     if lang:
         config.LANGUAGE = lang
         saved["language"] = lang
