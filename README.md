@@ -13,6 +13,8 @@ A portable game library for a folder of PC games. Drop `Ludotek.exe` next to you
 
 Available in English and French. Ludotek picks your system language and you can switch in **Settings**.
 
+![The Ludotek library: covers, filters and layouts (French interface)](docs/screenshot.webp)
+
 ## Features
 
 - Scans the folder and tells installed games, archives to extract and installers apart.
