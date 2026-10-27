@@ -55,7 +55,7 @@ Derived app values: `--accent-hover` (`#063fba`), `--radius-control` (8px, butto
 
 From top to bottom:
 
-1. **Header** on `ground`: title + version + watched path, then "Settings", "Rescan", "Quit".
+1. **Header** on `ground`: title + version + watched path, then "Settings", "Fill in", "Rescan", "Quit". The title block shrinks (the path breaks inside it) so the buttons stay on one line; below 480px they wrap into two rows.
 2. **Facts strip**: the stats as a ruled strip (hairline top and bottom, vertical rules between figures), not as cards.
 3. **Sticky toolbar** on translucent `ground`: search, filter chips, sort, layout switcher.
 4. **Library field** on `ground-muted`: the card grid, then the "Recently removed" disclosure.
@@ -74,6 +74,8 @@ Every band aligns on the same content width (max 1320px) through `--inline`. Kee
 - **Favorite star**: white round tile, grey star; blue when on, with `aria-pressed`.
 - **Disclosure** ("Recently removed"): native `<details>`, ruled rows, a "+" that rotates 45° when open.
 - **Dialogs**: white panel, 12px radius, large soft shadow over a dimmed ink backdrop. Fields have a 13px label above them, white inputs and selects (including the language selector in Settings), and a blue border plus a soft blue ring on focus.
+- **Fill in button** (header): a secondary button; while the Steam fill runs it reads "Stop · done/total" in accent color and stops the job when clicked. A toast sums up the result when it ends.
+- **Steam results** (details dialog, after "Search Steam"): a hint line, then up to 5 small white tiles (88px wide, hairline border, 3:4 image on top, 2-line name). Hover highlights the border in accent; they wrap on narrow screens. Missing portrait covers fall back to Steam's small capsule, cropped to 3:4.
 - **Toast and banner**: the dark passages (`field` background, `on-field` text).
 
 ## Motion

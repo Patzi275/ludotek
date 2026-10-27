@@ -20,6 +20,7 @@ Available in English and French. Ludotek picks your system language and you can 
 - Finds the right executable in each game folder, skipping uninstallers, redistributables and crash handlers.
 - Launches games and opens their location.
 - Favorites, status, notes, description and cover art (file, URL, drag and drop or paste).
+- **Fill in** looks up missing covers and descriptions on Steam (no account needed), in your language; the details dialog can search Steam for one game and let you pick the right result.
 - Grid (small, medium, large) or list layout, remembered between launches.
 - Watches for added and removed items, and lets you switch to another games folder from the settings.
 - English and French interface, errors and console, with your system language by default.
@@ -51,11 +52,13 @@ Build the exe on Windows: `pip install pyinstaller`, then `.\script\build.ps1` (
 
 ## Roadmap
 
-Automatic covers and a controller-friendly TV mode.
+A controller-friendly TV mode.
 
 ## Security
 
 The server only listens on `127.0.0.1`. Every action needs a per-session token, so other websites cannot launch anything on your machine.
+
+Ludotek only goes online when you ask it to: downloading a cover from a URL, or filling in from Steam (game names are sent to Steam's public store search).
 
 ## License
 
