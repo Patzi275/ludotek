@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0](https://github.com/Patzi275/ludotek/compare/v0.2.0...v0.3.0) (2026-10-27)
+
+
+### Features
+
+* add list view and grid sizes ([3ed3a14](https://github.com/Patzi275/ludotek/commit/3ed3a145d3b29b9a2da15af643988e4b238441f8))
+* fill missing covers and descriptions from Steam ([bf31189](https://github.com/Patzi275/ludotek/commit/bf311896ba935e5f37d1ffa26ed8d77306fed384))
+* fill missing covers and descriptions from Steam ([69ca787](https://github.com/Patzi275/ludotek/commit/69ca7870b2bf1633ffc028a0e7068116202268b3))
+
+
+### Bug Fixes
+
+* translate log lines that pass a count as {n} ([f825c57](https://github.com/Patzi275/ludotek/commit/f825c57f103003b179e9ebb810d27e27dcb04471))
+
 ## [0.2.0](https://github.com/Patzi275/ludotek/compare/v0.1.0...v0.2.0) (2026-10-27)
 
 
