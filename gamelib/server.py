@@ -5,7 +5,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
-from . import api
+from . import __version__, api
 from .config import MAX_IMAGE, PORT, TOKEN, WEB_DIR
 from .covers import read_cover
 
@@ -51,7 +51,7 @@ class Handler(BaseHTTPRequestHandler):
             name, ctype = STATIC[path]
             data = (WEB_DIR / name).read_bytes()
             if name == "index.html":
-                data = data.replace(b"__TOKEN__", TOKEN.encode())
+                data = data.replace(b"__TOKEN__", TOKEN.encode()).replace(b"__VERSION__", __version__.encode())
             return self._send(200, data, ctype)
         if path == "/api/library":
             return self._send(200, api.payload())

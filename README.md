@@ -17,7 +17,7 @@ The interface is in French.
 
 ## Usage
 
-1. Download `Ludotek.exe` from the latest successful [build workflow](../../actions/workflows/build-exe.yml) run (Artifacts section, requires a GitHub account).
+1. Download `Ludotek.exe` from the [latest release](../../releases/latest).
 2. Put it in your games folder and run it, or choose another folder later in **Réglages**.
 3. The library opens in your browser. The console window logs what Ludotek does; close it (or click **Quitter**) to stop the app.
 
@@ -33,6 +33,8 @@ python3 library.py --no-browser
 ```
 
 Build the exe on Windows: `pip install pyinstaller`, then `.\build.ps1` (output: `dist\Ludotek.exe`). Every push to `main` also builds it in CI.
+
+**Releasing**: write [Conventional Commits](https://www.conventionalcommits.org) (`fix:` → patch, `feat:` → minor, `feat!:` → breaking). [release-please](https://github.com/googleapis/release-please) keeps a release PR open with the next version and `CHANGELOG.md`; merging it tags `vX.Y.Z`, publishes the release and CI attaches `Ludotek.exe`.
 
 ## Roadmap
 

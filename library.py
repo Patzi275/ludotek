@@ -20,7 +20,7 @@ import sys
 import threading
 import webbrowser
 
-from gamelib import config, scanner
+from gamelib import __version__, config, scanner
 from gamelib.server import make_server
 from gamelib.storage import save_db
 
@@ -39,7 +39,8 @@ def main():
         raise SystemExit(f"Dossier introuvable : {config.ROOT}")
     server = make_server()
     url = f"http://127.0.0.1:{server.server_address[1]}/"
-    print(f"Ludotek   : {config.ROOT}")
+    print(f"Ludotek {__version__}")
+    print(f"Dossier   : {config.ROOT}")
     print(f"Interface : {url}")
     print("Pour arrêter : ferme cette fenêtre, Ctrl+C, ou le bouton Quitter.")
     print("Fermer l'onglet du navigateur n'arrête pas l'application.")

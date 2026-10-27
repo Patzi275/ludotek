@@ -43,6 +43,7 @@ h1,h2{font-family:var(--font-display);font-weight:700;letter-spacing:-.025em;lin
 /* ---- header + facts strip */
 header{display:flex;align-items:center;gap:12px;padding:28px var(--inline) 18px;flex-wrap:wrap}
 h1{margin:0 0 4px;font-size:30px}
+.version{font-family:var(--font-text);font-size:var(--dp-typography-metadata);font-weight:500;letter-spacing:0;color:var(--dp-color-ink-secondary);vertical-align:middle}
 .path{color:var(--dp-color-ink-secondary);font-size:var(--dp-typography-metadata);word-break:break-all}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:0 var(--inline);
   border-top:var(--hairline);border-bottom:var(--hairline)}
