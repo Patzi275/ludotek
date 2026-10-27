@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.png">
+    <img src="assets/logo.png" width="96" height="96" alt="Ludotek">
+  </picture>
+</p>
+
 # Ludotek
 
 *From the French* ludothèque, *a game library.*
@@ -13,6 +20,7 @@ Available in English and French. Ludotek picks your system language and you can 
 - Finds the right executable in each game folder, skipping uninstallers, redistributables and crash handlers.
 - Launches games and opens their location.
 - Favorites, status, notes, description and cover art (file, URL, drag and drop or paste).
+- Grid (small, medium, large) or list layout, remembered between launches.
 - Watches for added and removed items, and lets you switch to another games folder from the settings.
 - English and French interface, errors and console, with your system language by default.
 

@@ -70,6 +70,13 @@ h1{margin:0 0 4px;font-size:30px}
 .search,select{background:var(--dp-color-panel);border:var(--hairline);border-radius:var(--radius-control);min-height:40px}
 .search{flex:1 1 240px;min-width:180px;padding:8px 12px}
 select{padding:8px 10px}
+/* Layout switcher: segmented icon buttons, the selected one is blue (aria-pressed). */
+.views{display:inline-flex;gap:2px;padding:2px;background:var(--dp-color-panel);border:var(--hairline);border-radius:var(--radius-control)}
+.views button{display:grid;place-items:center;width:36px;height:34px;padding:0;background:transparent;border:0;border-radius:6px;
+  color:var(--dp-color-ink-secondary);transition:background-color var(--ease),color var(--ease)}
+.views button:hover{background:var(--dp-color-ground-muted);color:var(--dp-color-ink)}
+.views button[aria-pressed="true"]{background:var(--dp-color-accent);color:var(--dp-color-on-accent)}
+.views svg{width:16px;height:16px;fill:currentColor}
 .search:focus,select:focus,.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--dp-color-accent);outline:none}
 .search:focus-visible,select:focus-visible,.field :is(input,textarea,select):focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--dp-color-accent) 22%,transparent)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
@@ -82,17 +89,20 @@ select{padding:8px 10px}
 
 /* ---- library field + cards */
 main{padding:28px var(--inline) 64px;background:var(--dp-color-ground-muted);min-height:60vh}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:var(--dp-spacing-grid-gap)}
+/* Grid layouts set the minimum card width; the list layout stacks rows (see below). */
+.grid{--card-min:210px;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-min),1fr));gap:var(--dp-spacing-grid-gap)}
+.grid.size-s{--card-min:160px} .grid.size-l{--card-min:280px}
 .card{display:flex;flex-direction:column;overflow:hidden;background:var(--dp-color-panel);border:var(--hairline);
   border-radius:var(--dp-radius-panel);box-shadow:var(--shadow-card);transition:transform var(--ease),box-shadow var(--ease),border-color var(--ease)}
 .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
 .card.drop{border-color:var(--dp-color-accent);box-shadow:0 0 0 2px var(--dp-color-accent)}
 /* Placeholder cover: a quiet tint per game (hue from its id), real covers keep their colors. */
-.cover{position:relative;aspect-ratio:3/4;display:grid;place-items:center;border-bottom:var(--hairline);
+.cover{position:relative;aspect-ratio:3/4;display:grid;place-items:center;border-bottom:var(--hairline);container-type:inline-size;
   background:linear-gradient(160deg,hsl(var(--h) 22% 94%),hsl(var(--h) 16% 84%))}
 .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cover .star,.cover .badges{z-index:1}
-.initials{font-family:var(--font-display);font-size:56px;font-weight:800;letter-spacing:-.05em;color:var(--dp-color-ink);opacity:.72}
+/* Initials scale with the cover width (cqi), so every layout keeps the same proportions. */
+.initials{font-family:var(--font-display);font-size:clamp(11px,26cqi,84px);font-weight:800;letter-spacing:-.05em;color:var(--dp-color-ink);opacity:.72}
 .star{position:absolute;top:10px;right:10px;display:grid;place-items:center;width:36px;height:36px;padding:0;
   background:var(--dp-color-panel);border:var(--hairline);border-radius:50%;box-shadow:var(--shadow-card);
   font-size:17px;line-height:1;color:#8a909b;transition:color var(--ease),transform var(--ease)}
@@ -115,6 +125,33 @@ main{padding:28px var(--inline) 64px;background:var(--dp-color-ground-muted);min
 .actions{display:flex;gap:8px;margin-top:auto;padding-top:10px}
 .actions .btn{flex:1;padding:8px 10px;font-size:var(--dp-typography-small)}
 .actions .more{flex:0 0 40px;padding:0}
+.actions .btn:not(.more){min-width:0}
+.actions .btn span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Small grid: denser cards, no description. Large grid: bigger titles. */
+.size-s .desc{display:none}
+.size-s .body{padding:10px;gap:2px}
+.size-s .title{font-size:15px}
+.size-s .actions{gap:6px;padding-top:8px}
+.size-s .actions .btn{min-height:36px;padding:6px 8px;font-size:var(--dp-typography-metadata)}
+.size-s .actions .more{flex-basis:36px}
+.size-s .star{top:8px;right:8px;width:32px;height:32px;font-size:15px}
+.size-s .badges{left:8px;right:8px;bottom:8px}
+.size-l .title{font-size:19px}
+
+/* ---- list layout: one row per item */
+.grid.list{display:flex;flex-direction:column;gap:8px}
+.card.row{flex-direction:row;align-items:center;gap:14px;padding:8px 10px 8px 8px}
+.card.row:hover{transform:translateY(-1px)}
+.row .thumb{flex:none;width:44px;border:var(--hairline);border-radius:6px}
+.row-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.row .status{flex:none;width:110px}
+.row .actions{flex:none;align-items:center;margin:0;padding:0}
+.row .actions .btn{flex:none}
+.row .actions .btn:not(.more){width:150px}
+.row .actions .more{width:40px}
+.row .star{position:static;box-shadow:none}
 .empty{color:var(--dp-color-ink-secondary);text-align:center;padding:64px 0}
 
 /* ---- "Disparus récemment": native disclosure, ruled row, rotating plus */
@@ -169,7 +206,8 @@ details.removed li{margin:4px 0;font-size:var(--dp-typography-small)}
   .stat b{font-size:22px}
   .stat{padding:12px 12px 12px 0}
   .stat+.stat{padding-left:12px}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+  .grid{--card-min:170px} .grid.size-s{--card-min:130px} .grid.size-l{--card-min:230px}
+  .row .status{display:none}
   .mhead{flex-direction:column}
 }
 @media (max-width:480px){
@@ -179,8 +217,11 @@ details.removed li{margin:4px 0;font-size:var(--dp-typography-small)}
   .stat,.stat+.stat{padding:12px 0;border-left:0}
   .stat:nth-child(even){padding-left:14px;border-left:var(--hairline)}
   .stat:nth-child(n+3){border-top:var(--hairline)}
-  .grid{grid-template-columns:repeat(2,1fr)}
-  .initials{font-size:44px}
+  .grid.size-s,.grid.size-m{grid-template-columns:repeat(2,1fr)}
+  .grid.size-l{grid-template-columns:1fr}
+  .card.row{flex-wrap:wrap}
+  .row .actions{flex-basis:100%}
+  .row .actions .btn:not(.more){flex:1;width:auto}
   .body{padding:12px}
   .actions{flex-wrap:wrap}
 }

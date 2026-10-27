@@ -19,6 +19,7 @@ STATIC = {
     "/style.css": ("style.css", "text/css; charset=utf-8"),
     "/fonts/host-grotesk.woff2": ("fonts/host-grotesk.woff2", "font/woff2"),
     "/fonts/instrument-sans.woff2": ("fonts/instrument-sans.woff2", "font/woff2"),
+    "/favicon.png": ("favicon.png", "image/png"),
 }
 
 
@@ -60,6 +61,7 @@ class Handler(BaseHTTPRequestHandler):
                 data = (data.replace(b"__TOKEN__", TOKEN.encode())
                         .replace(b"__VERSION__", __version__.encode())
                         .replace(b"__LANG__", config.LANGUAGE.encode())
+                        .replace(b"__VIEW__", api.current_view().encode())
                         .replace(b"__I18N__", _i18n_json()))
             return self._send(200, data, ctype)
         if path == "/api/library":

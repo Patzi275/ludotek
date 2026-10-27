@@ -135,5 +135,11 @@
  "log.cover_removed": "Jaquette retirée : {name}",
  "log.folder_change": "Changement de dossier : {path}",
  "log.language_change": "Langue : {language}",
- "log.settings_not_saved": "Réglage non enregistré dans {path} : {error}"
+ "log.settings_not_saved": "Réglage non enregistré dans {path} : {error}",
+ "view.label": "Affichage",
+ "view.grid_s": "Petite grille",
+ "view.grid_m": "Grille moyenne",
+ "view.grid_l": "Grande grille",
+ "view.list": "Liste",
+ "error.bad_view": "Affichage inconnu : {view}."
 }

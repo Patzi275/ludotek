@@ -135,5 +135,11 @@
  "log.cover_removed": "Cover removed: {name}",
  "log.folder_change": "Switching folder: {path}",
  "log.language_change": "Language: {language}",
- "log.settings_not_saved": "Setting not saved to {path}: {error}"
+ "log.settings_not_saved": "Setting not saved to {path}: {error}",
+ "view.label": "Layout",
+ "view.grid_s": "Small grid",
+ "view.grid_m": "Medium grid",
+ "view.grid_l": "Large grid",
+ "view.list": "List",
+ "error.bad_view": "Unknown layout: {view}."
 }

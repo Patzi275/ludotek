@@ -4,9 +4,9 @@ Ludotek (from the French *ludothèque*, a game library) is a tool that **lives i
 
 ## Non-negotiable constraints
 
-- **Small layout**: the `ludotek/` package (one module per concern, entry point `ludotek/__main__.py`) + `ludotek/web/` (HTML, CSS, JS, fonts and translation catalogs of the UI). Tests in `tests/`, build files in `script/`, design doc in `docs/`, release-please config in `.github/`. Keep it flat: no sub-packages, no extra layers unless needed.
+- **Small layout**: the `ludotek/` package (one module per concern, entry point `ludotek/__main__.py`) + `ludotek/web/` (HTML, CSS, JS, fonts and translation catalogs of the UI). Tests in `tests/`, build files in `script/`, logo and exe icon in `assets/`, design doc in `docs/`, release-please config in `.github/`. Keep it flat: no sub-packages, no extra layers unless needed.
 - **Standard library only** (Python 3.8+). No pip dependency at runtime. No front-end framework, no build step, no CDN: everything must work offline.
-- **Portable**: all library data lives in the watched folder, never in the user profile. The only exception is `.ludotek.json` (watched folder and language), stored next to the app (`APP_DIR`).
+- **Portable**: all library data lives in the watched folder, never in the user profile. The only exception is `.ludotek.json` (watched folder, language, library layout), stored next to the app (`APP_DIR`). UI preferences go there too, not in `localStorage` (which is tied to the browser profile and the port).
 - **Language**: code, comments, docstrings and docs are in English. Everything the user sees (UI, server error messages shown in toasts, console banner and logs) is **translated**: English and French today, one JSON catalog per language in `ludotek/web/i18n/`. Never hard-code a user-facing string: add a key to **every** catalog and use `t()` (Python `ludotek.i18n.t`, JS `t` / `tn`). Default language: saved setting, else system language, else English.
 - **End user on Windows**, without Python installed: the app ships as an `.exe` built with PyInstaller. Development happens on **WSL (Linux)**: the code must stay cross-platform (`os.startfile` on Windows, `open` on macOS, `xdg-open` on Linux).
 
@@ -31,10 +31,11 @@ python -m pip install pyinstaller
 .\script\build.ps1                            # -> dist\Ludotek.exe
 ```
 
-- `script/ludotek.spec` is the **only** place for build settings (entry, name, data files, console window). Paths in it are built from `ROOT = dirname(SPECPATH)`: never commit absolute paths. Both scripts just run it with `--distpath dist --workpath build`.
+- `script/ludotek.spec` is the **only** place for build settings (entry, name, data files, icon, console window). Paths in it are built from `ROOT = dirname(SPECPATH)`: never commit absolute paths. Both scripts just run it with `--distpath dist --workpath build`.
 - **CI**: `.github/workflows/build-exe.yml`, on every push to `main` (and manually). Job `release-please` keeps the release PR up to date; job `build` (Windows runner) runs `python -m pytest -q`, then `script/build.ps1`, smoke-tests the exe (page, UI files, fonts, scan, Quit) and uploads it as an artifact; when a release was just created, `build` first checks the tag equals `v` + `ludotek.__version__` and job `attach` uploads `Ludotek.exe` to that release. All in one workflow on purpose: tags created with `GITHUB_TOKEN` do not trigger other workflows. Stable download link: `releases/latest/download/Ludotek.exe`. Keep the PyInstaller and pytest versions pinned there. Repo setting required: Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
 - **Versioning**: semver driven by commit messages ([Conventional Commits](https://www.conventionalcommits.org)) through release-please (`.github/release-please-config.json`, `.github/.release-please-manifest.json`, `release-type: simple`, `bump-minor-pre-major`). The version lives in `version.txt`, the manifest and `__version__` in `ludotek/__init__.py` (line annotated `x-release-please-version`): only the release PR changes them, never edit by hand. It is shown in the console banner and the UI header (`__VERSION__` in `index.html`, replaced like the token). Never reuse or move a published tag.
 - `script/build.sh` is for Git Bash on Windows; on Linux/WSL it produces a Linux binary (handy to check that `ludotek/web` is bundled, useless for end users).
+- **Icons**: `assets/logo.png` is the source (pixel art on a 6×6 block grid). After changing it, run `python script/make_icon.py` (dev only, needs Pillow) and commit its outputs: `assets/ludotek.ico` (exe icon, used by the spec), `assets/logo-dark.png` (README in dark theme) and `ludotek/web/favicon.png` (browser tab). Scaling is integer nearest-neighbour only; the script refuses a logo it cannot scale cleanly.
 - `datas` must include `ludotek/web`: without it the exe starts but serves no page. `pathex` must include the repo root, since the entry script imports `ludotek` absolutely.
 - The exe opens a **console window on purpose** (`console=True`): closing it, Ctrl+C or the UI's "Quit" button stops the server. Without it the server would keep running invisibly after the browser tab is closed. Keep the "Quit" button. Closing the window kills the process without calling `save_db()`, which is fine because every change is already saved when it happens. `config.FROZEN`/`APP_DIR` handle the `sys.frozen` case, and the exe's own name is added to `IGNORED`.
 
@@ -53,9 +54,11 @@ ludotek/
   system.py           open_path, reveal_path (per OS), pick_folder (tkinter dialog)
   api.py              payload() + POST actions (ACTIONS table, UPDATABLE whitelist, ApiError)
   server.py           Handler: Host/token checks, static files (STATIC), routing to api.ACTIONS
-  web/                index.html, style.css, app.js, fonts/ (bundled woff2 + OFL licenses), i18n/ (en.json, fr.json)
+  web/                index.html, style.css, app.js, favicon.png, fonts/ (bundled woff2 + OFL licenses), i18n/ (en.json, fr.json)
 tests/
   test_i18n.py        catalog consistency + i18n rules (pytest)
+  test_settings.py    layout setting: validation, persistence, app.js/api.py VIEWS in sync
+assets/               logo.png (source), logo-dark.png, ludotek.ico (generated by script/make_icon.py)
 ```
 
 Dependencies go one way: `config` <- `i18n` <- `names`, `storage` <- `scanner`, `covers`, `system` <- `api` <- `server` <- `__main__`. HTTP details stay in `server.py`; `api.py` never touches the request handler.
@@ -67,7 +70,7 @@ Dependencies go one way: `config` <- `i18n` <- `names`, `storage` <- `scanner`, 
 - **Watched folder**: chosen at start (command line, then `.ludotek.json` if the folder still exists, then `APP_DIR`) and changeable from the UI (`api.settings`): under `LOCK` it saves the old DB, calls `config.set_root`, `storage.reload`, `scanner.reset`, then scans. `scan()` and `worker()` remember the root they started with and drop their results if it changed meanwhile.
 - **Covers**: `sniff_image` validates the format from the bytes (PNG/JPG/GIF/WEBP), `fetch_image` downloads from an http(s) URL, and `set_cover` / `clear_cover` manage the `.bibliotheque/covers/<id>.<ext>` files.
 - **API**: each POST action is a function `(iid, req) -> dict` registered in `api.ACTIONS`; `req` is `{"raw", "type", "json"}` (`json` is always a dict). Errors shown to the user are raised as `ApiError(status, t("error.…"))` (already translated; raw OS messages pass through as is). `quit` is handled in `server.py` because it stops the server.
-- **UI** (`ludotek/web/`): grid rendered in vanilla JS. The token is injected into `index.html` (`<meta name="biblio-token">`, replacing `__TOKEN__`) and read by `app.js`. So are `__LANG__` (`<html lang>`) and `__I18N__` (current catalog + English fallback + language list, JSON in `<script id="i18n">`, `</` escaped): `index.html` holds no text, only `data-i18n`, `data-i18n-placeholder|title|aria-label` keys applied by `applyI18n()`. Changing the language in Settings saves it and reloads the page. Sorting, dates and sizes use `LANG` (`Intl`, `localeCompare`) and the catalog's `size.units`. The UI polls `/api/library` every 4 s and only re-renders if the JSON changed. The details dialog does not overwrite a focused `textarea`.
+- **UI** (`ludotek/web/`): library rendered in vanilla JS, in one of four layouts (`api.VIEWS` = `grid-s`, `grid-m`, `grid-l`, `list`; `app.js` `VIEWS` must match). The saved layout is injected as `<html data-view="__VIEW__">` (`api.current_view()`, default `grid-m`); the switcher saves it through `/api/settings` without a reload. `cardHtml` / `rowHtml` share small helpers (cover, star, badges, actions); both keep class `card` and `data-id`, so clicks, favorites and cover drag and drop work in every layout. The token is injected into `index.html` (`<meta name="biblio-token">`, replacing `__TOKEN__`) and read by `app.js`. So are `__LANG__` (`<html lang>`) and `__I18N__` (current catalog + English fallback + language list, JSON in `<script id="i18n">`, `</` escaped): `index.html` holds no text, only `data-i18n`, `data-i18n-placeholder|title|aria-label` keys applied by `applyI18n()`. Changing the language in Settings saves it and reloads the page. Sorting, dates and sizes use `LANG` (`Intl`, `localeCompare`) and the catalog's `size.units`. The UI polls `/api/library` every 4 s and only re-renders if the JSON changed. The details dialog does not overwrite a focused `textarea`.
 
 ## Data
 
@@ -82,7 +85,7 @@ Dependencies go one way: `config` <- `i18n` <- `names`, `storage` <- `scanner`, 
 }
 ```
 
-`.ludotek.json` (next to the app, not in the watched folder): `{"root": "D:\\Jeux", "language": "fr"}`. Unknown keys are kept when saving, so new settings can be added there.
+`.ludotek.json` (next to the app, not in the watched folder): `{"root": "D:\\Jeux", "language": "fr", "view": "list"}`. Unknown keys are kept when saving, so new settings can be added there.
 
 - `id` = first 12 hex characters of the SHA-1 of the file name. Renaming a file therefore creates a new item; the old one moves to `removed`.
 - "New" = `first_seen > last_seen_at` of the previous session (`PREV_SEEN`).
@@ -93,8 +96,8 @@ Dependencies go one way: `config` <- `i18n` <- `names`, `storage` <- `scanner`, 
 
 | Method | Route                | Purpose                                                       |
 | ------ | -------------------- | ------------------------------------------------------------- |
-| GET    | `/`                  | HTML page (`__TOKEN__`, `__VERSION__`, `__LANG__`, `__I18N__` injected) |
-| GET    | `/app.js`, `/style.css`, `/fonts/*.woff2` | UI files and fonts (fixed list in `server.STATIC`) |
+| GET    | `/`                  | HTML page (`__TOKEN__`, `__VERSION__`, `__LANG__`, `__VIEW__`, `__I18N__` injected) |
+| GET    | `/app.js`, `/style.css`, `/fonts/*.woff2`, `/favicon.png` | UI files, fonts and tab icon (fixed list in `server.STATIC`) |
 | GET    | `/api/library`       | Full state: `root`, `items`, `removed`                        |
 | GET    | `/covers/<id>.<ext>` | Cover image (name validated by `COVER_NAME_RE`)               |
 | POST   | `/api/rescan`        | Immediate scan                                                |
@@ -103,7 +106,7 @@ Dependencies go one way: `config` <- `i18n` <- `names`, `storage` <- `scanner`, 
 | POST   | `/api/reveal/<id>`   | Opens the location in the file explorer                       |
 | POST   | `/api/cover/<id>`    | Binary `image/*` body **or** JSON `{"url": "https://..."}`    |
 | POST   | `/api/uncover/<id>`  | Removes the cover                                             |
-| POST   | `/api/settings`      | JSON `{"root": "D:\\Jeux", "language": "en"}` (both optional, validated first): switches folder and/or language and saves them |
+| POST   | `/api/settings`      | JSON `{"root": "D:\\Jeux", "language": "en", "view": "list"}` (all optional, validated first): switches folder, language and/or layout and saves them |
 | POST   | `/api/browse`        | Opens the native folder dialog, returns `{"path": ... or null}` |
 | POST   | `/api/quit`          | Stops the server                                              |
 
