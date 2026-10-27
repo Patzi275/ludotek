@@ -1,0 +1,65 @@
+{
+ "total": 10,
+ "items": [
+  {
+   "type": "app",
+   "name": "Hades II",
+   "id": 1145350,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1145350/10c9138570a8d7ac9144f601ab0f2ccbc820337e/capsule_231x87.jpg?t=1779901265"
+  },
+  {
+   "type": "app",
+   "name": "Hades",
+   "id": 1145360,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1145360/capsule_231x87.jpg?t=1758127023"
+  },
+  {
+   "type": "app",
+   "name": "Hades' Star",
+   "id": 755800,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/755800/capsule_231x87.jpg?t=1760538814"
+  },
+  {
+   "type": "app",
+   "name": "Hades II Original Soundtrack",
+   "id": 2950840,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2950840/2929a094502c3eb005e2c6793e1ede1ce7c3b67d/capsule_231x87.jpg?t=1758829232"
+  },
+  {
+   "type": "app",
+   "name": "Hades Original Soundtrack",
+   "id": 1206340,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1206340/capsule_231x87.jpg?t=1601508604"
+  },
+  {
+   "type": "app",
+   "name": "Hades Harem",
+   "id": 3653720,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3653720/50d70d6be19137e0d64f709760a991ceb389bdfa/capsule_231x87.jpg?t=1745523649"
+  },
+  {
+   "type": "app",
+   "name": "The Road to Hades",
+   "id": 826460,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/826460/capsule_231x87.jpg?t=1523540778"
+  },
+  {
+   "type": "app",
+   "name": "Hearts in Hades: Divine Passion",
+   "id": 3992460,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3992460/2e24bce9b1e7547a47bd613ff0d3e21d382fb21e/capsule_231x87.jpg?t=1790623364"
+  },
+  {
+   "type": "app",
+   "name": "Hades Hinderance",
+   "id": 4516620,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4516620/460ee36d6dfcc8c27e0ddf97652704e874248517/capsule_231x87.jpg?t=1790087345"
+  },
+  {
+   "type": "app",
+   "name": "Cyborg-Hades",
+   "id": 3135730,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3135730/capsule_231x87.jpg?t=1752567309"
+  }
+ ]
+}
