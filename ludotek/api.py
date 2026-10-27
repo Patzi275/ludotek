@@ -7,8 +7,9 @@ import logging
 import time
 from pathlib import Path
 
-from . import config, scanner, storage
+from . import config, i18n, scanner, storage
 from .covers import clear_cover, fetch_image, set_cover
+from .i18n import t
 from .names import clean_name
 from .storage import DB, LOCK, save_db
 from .system import open_path, pick_folder, reveal_path
@@ -26,7 +27,7 @@ UPDATABLE = {
 
 
 class ApiError(Exception):
-    """An error message for the user (in French) and its HTTP status."""
+    """A message for the user (already translated, see i18n.t) and its HTTP status."""
 
     def __init__(self, status, message):
         super().__init__(message)
@@ -79,7 +80,7 @@ def _record(iid):
     """The item's record. Call under LOCK."""
     rec = DB["items"].get(iid)
     if rec is None:
-        raise ApiError(404, "élément inconnu")
+        raise ApiError(404, t("error.unknown_item"))
     return rec
 
 
@@ -93,12 +94,12 @@ def _open(fn, target):
     try:
         fn(target)
     except OSError as e:
-        log.error("Ouverture impossible : %s (%s)", target, e)
+        log.error(t("log.open_failed", path=target, error=e))
         raise ApiError(500, str(e))
 
 
 def rescan(iid, req):
-    log.info("Rescan demandé.")
+    log.info(t("log.rescan"))
     scanner.scan()
     return OK
 
@@ -114,7 +115,7 @@ def update(iid, req):
         if "exe" in body and (body["exe"] is None or body["exe"] in (rec.get("exes") or [])):
             rec["exe"] = body["exe"]
         changed = [f for f in (*UPDATABLE, "exe") if f in body]
-        log.info("Modifié : %s (%s)", rec["file"], ", ".join(changed) or "rien")
+        log.info(t("log.updated", name=rec["file"], fields=", ".join(changed) or t("log.nothing")))
     save_db()
     return OK
 
@@ -126,9 +127,9 @@ def launch(iid, req):
         if target.is_dir():
             exe = chosen_exe(rec)
             if not exe:
-                raise ApiError(400, "Aucun exécutable trouvé dans ce dossier.")
+                raise ApiError(400, t("error.no_exe"))
             target = target / exe
-        log.info("Lancement : %s", target)
+        log.info(t("log.launch", path=target))
         _open(open_path, target)
         rec["last_launched"] = time.time()
     save_db()
@@ -138,7 +139,7 @@ def launch(iid, req):
 def reveal(iid, req):
     with LOCK:
         target = config.ROOT / _record(iid)["file"]
-        log.info("Ouverture de l'emplacement : %s", target)
+        log.info(t("log.reveal", path=target))
         _open(reveal_path, target)
     return OK
 
@@ -149,14 +150,14 @@ def cover(iid, req):
         if req["type"].startswith("image/") or req["type"] == "application/octet-stream":
             data = req["raw"]
         elif req["json"].get("url"):
-            log.info("Téléchargement de la jaquette : %s", req["json"]["url"])
+            log.info(t("log.cover_download", url=req["json"]["url"]))
             data = fetch_image(str(req["json"]["url"]))
         else:
-            raise ValueError("Aucune image fournie.")
+            raise ValueError(t("error.no_image"))
         set_cover(iid, data)
     except (ValueError, OSError) as e:
-        raise ApiError(400, str(e) or "Téléchargement impossible.")
-    log.info("Jaquette ajoutée : %s", _name(iid))
+        raise ApiError(400, str(e) or t("error.download_failed"))
+    log.info(t("log.cover_added", name=_name(iid)))
     return OK
 
 
@@ -165,30 +166,49 @@ def uncover(iid, req):
         clear_cover(iid)
     except ValueError as e:
         raise ApiError(404, str(e))
-    log.info("Jaquette retirée : %s", _name(iid))
+    log.info(t("log.cover_removed", name=_name(iid)))
     return OK
 
 
 def settings(iid, req):
-    """Switch the watched folder and remember it for the next launch."""
-    # Strip the quotes Windows adds with "Copy as path".
-    raw = str(req["json"].get("root") or "").strip().strip('"').strip()
-    path = Path(raw).expanduser() if raw else None
-    if path is None or not path.is_absolute() or not path.is_dir():
-        raise ApiError(400, "Dossier introuvable. Indique un chemin complet, par exemple D:\\Jeux.")
-    log.info("Changement de dossier : %s", path)
-    with LOCK:
-        save_db()  # flush the previous library first
-        config.set_root(path)
-        storage.reload()
-        scanner.reset()
-        scanner.scan()
+    """Change the watched folder and/or the language, and remember them for the next launch.
+
+    Both fields are optional and validated before anything is applied.
+    """
+    body = req["json"]
+    path = lang = None
+    if "root" in body:
+        # Strip the quotes Windows adds with "Copy as path".
+        raw = str(body["root"] or "").strip().strip('"').strip()
+        path = Path(raw).expanduser() if raw else None
+        if path is None or not path.is_absolute() or not path.is_dir():
+            raise ApiError(400, t("error.bad_folder"))
+    if "language" in body:
+        lang = str(body["language"])
+        if lang not in i18n.LANGUAGES:
+            raise ApiError(400, t("error.bad_language", language=lang))
+
+    saved = {}
+    if lang:
+        config.LANGUAGE = lang
+        saved["language"] = lang
+        log.info(t("log.language_change", language=lang))
+    if path:
+        log.info(t("log.folder_change", path=path))
+        with LOCK:
+            save_db()  # flush the previous library first
+            config.set_root(path)
+            storage.reload()
+            scanner.reset()
+            scanner.scan()
+        saved["root"] = str(config.ROOT)
+    if not saved:
+        return OK
     try:
-        config.save_settings({**config.load_settings(), "root": str(config.ROOT)})
+        config.save_settings({**config.load_settings(), **saved})
     except OSError as e:
-        log.warning("Réglage non enregistré dans %s : %s", config.SETTINGS_PATH, e)
-        return {"ok": True, "warning": "Dossier changé, mais le réglage n'a pas pu être enregistré "
-                                       "à côté de l'application : il sera perdu au prochain lancement."}
+        log.warning(t("log.settings_not_saved", path=config.SETTINGS_PATH, error=e))
+        return {"ok": True, "warning": t("error.settings_not_saved")}
     return OK
 
 

@@ -5,6 +5,7 @@ import sys
 import threading
 
 from .config import IS_WIN
+from .i18n import t
 
 _PICKER = threading.Lock()  # one folder dialog at a time
 
@@ -35,7 +36,7 @@ def pick_folder(initial):
 
     Runs on the HTTP request thread and waits for the user, like a cover download.
     """
-    unavailable = OSError("Sélecteur de dossier indisponible : saisis le chemin à la main.")
+    unavailable = OSError(t("error.picker_unavailable"))
     if sys.platform == "darwin":
         raise unavailable  # Tk must run on the main thread on macOS
     try:
@@ -44,7 +45,7 @@ def pick_folder(initial):
     except ImportError:
         raise unavailable
     if not _PICKER.acquire(blocking=False):
-        raise OSError("Le sélecteur de dossier est déjà ouvert.")
+        raise OSError(t("error.picker_busy"))
     try:
         try:
             win = tkinter.Tk()

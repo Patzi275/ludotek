@@ -22,30 +22,38 @@ import webbrowser
 
 # Absolute imports: this file is also PyInstaller's entry script, run as a top-level module.
 from ludotek import __version__, config, scanner
+from ludotek.i18n import t
 from ludotek.server import make_server
 from ludotek.storage import save_db
 
 
 def setup_logging():
-    # French level names: the console is read by the end user.
-    for level, name in ((logging.INFO, "INFO"), (logging.WARNING, "ATTENTION"), (logging.ERROR, "ERREUR")):
-        logging.addLevelName(level, name)
+    # Translated level names: the console is read by the end user (set once, at startup).
+    for level, key in ((logging.INFO, "log.level.info"), (logging.WARNING, "log.level.warning"),
+                       (logging.ERROR, "log.level.error")):
+        logging.addLevelName(level, t(key))
     logging.basicConfig(level=logging.INFO, stream=sys.stdout,
                         format="%(asctime)s  %(levelname)-9s %(message)s", datefmt="%H:%M:%S")
+
+
+def print_banner(url):
+    labels = (t("banner.folder"), t("banner.interface"))
+    width = max(map(len, labels))  # align the colons whatever the language
+    print(f"Ludotek {__version__}")
+    print(f"{labels[0]:<{width}} : {config.ROOT}")
+    print(f"{labels[1]:<{width}} : {url}")
+    print(t("banner.stop_hint"))
+    print(t("banner.tab_hint"))
+    print()
 
 
 def main():
     setup_logging()
     if not config.ROOT.is_dir():
-        raise SystemExit(f"Dossier introuvable : {config.ROOT}")
+        raise SystemExit(t("error.folder_missing", path=config.ROOT))
     server = make_server()
     url = f"http://127.0.0.1:{server.server_address[1]}/"
-    print(f"Ludotek {__version__}")
-    print(f"Dossier   : {config.ROOT}")
-    print(f"Interface : {url}")
-    print("Pour arrêter : ferme cette fenêtre, Ctrl+C, ou le bouton Quitter.")
-    print("Fermer l'onglet du navigateur n'arrête pas l'application.")
-    print()
+    print_banner(url)
     scanner.scan()
     threading.Thread(target=scanner.worker, daemon=True).start()
     threading.Thread(target=scanner.rescan_loop, daemon=True).start()
@@ -56,7 +64,7 @@ def main():
     except KeyboardInterrupt:
         pass
     save_db()
-    logging.getLogger(__name__).info("Application arrêtée.")
+    logging.getLogger(__name__).info(t("log.stopped"))
 
 
 if __name__ == "__main__":

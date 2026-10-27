@@ -2,7 +2,7 @@
 
 The UI is a practical tool: a light, open page where the games are easy to scan. It uses the "Software" design system (light ground, dark tight headings, one electric-blue action color, white rounded cards), adapted to the app. The app is not a marketing page, so the hero diagram, pricing cards and editorial photos from that system are not used.
 
-All of it lives in `ludotek/web/style.css`. User-facing text stays in French.
+All of it lives in `ludotek/web/style.css`. Labels below are quoted in English; the French ones come from `fr.json`. Texts come from the translation catalogs (`ludotek/web/i18n/`): layouts must hold in every language, and English labels are often longer than French ones.
 
 ## Tokens
 
@@ -29,7 +29,7 @@ The `--dp-*` values in `:root` are authoritative. Do not change them locally; de
 | `--dp-radius-panel` | `12px` | Cards and dialogs |
 | `--dp-motion-interaction` / `-easing` | `160ms` / `ease-out` | Every hover/state transition |
 
-Derived app values: `--accent-hover` (`#063fba`), `--radius-control` (8px, buttons and inputs), `--shadow-card` / `--shadow-lift` / `--shadow-modal`, `--warning` (`#a15c07`, duplicate badge dot only), `--danger` (`#b42318`, "Quitter" hover only).
+Derived app values: `--accent-hover` (`#063fba`), `--radius-control` (8px, buttons and inputs), `--shadow-card` / `--shadow-lift` / `--shadow-modal`, `--warning` (`#a15c07`, duplicate badge dot only), `--danger` (`#b42318`, "Quit" hover only).
 
 ## Typography
 
@@ -40,18 +40,18 @@ Derived app values: `--accent-hover` (`#063fba`), `--radius-control` (8px, butto
 
 ## Color rules
 
-- **Blue means "act here" or "selected".** Used for: the play/launch button of playable items (`ready`, `exe`), the main button of a dialog, the selected filter chip, a favorite star, the "Nouveau" badge, the playing status, focus rings. "Ouvrir l'archive" and "Ouvrir" stay as outlined secondary buttons.
-- No other accent colors. The only exceptions are two small semantic signals: the amber dot of "Doublon ?" and the red hover of "Quitter".
+- **Blue means "act here" or "selected".** Used for: the play/launch button of playable items (`ready`, `exe`), the main button of a dialog, the selected filter chip, a favorite star, the "New" badge, the playing status, focus rings. "Open archive" and "Open" stay as outlined secondary buttons.
+- No other accent colors. The only exceptions are two small semantic signals: the amber dot of "Duplicate?" and the red hover of "Quit".
 - Placeholder covers use a **quiet tint** per game (hue from the id, 16–22% saturation), with dark initials. Real covers keep their own colors and get no overlay.
 
 ## Layout
 
 From top to bottom:
 
-1. **Header** on `ground`: title + watched path, then "Réglages", "Rescanner", "Quitter".
+1. **Header** on `ground`: title + version + watched path, then "Settings", "Rescan", "Quit".
 2. **Facts strip**: the stats as a ruled strip (hairline top and bottom, vertical rules between figures), not as cards.
 3. **Sticky toolbar** on translucent `ground`: search, filter chips, sort.
-4. **Library field** on `ground-muted`: the card grid, then the "Disparus récemment" disclosure.
+4. **Library field** on `ground-muted`: the card grid, then the "Recently removed" disclosure.
 
 Every band aligns on the same content width (max 1320px) through `--inline`. Keep it that way for new bands.
 
@@ -60,10 +60,10 @@ Every band aligns on the same content width (max 1320px) through `--inline`. Kee
 - **Buttons**: modest radius (8px), min height 40px (36px for the cover buttons in the details dialog), Instrument Sans 500/600. Secondary buttons are white and outlined; primary buttons are blue. Hover lifts by 1px and changes the fill; `:active` returns to rest.
 - **Chips** (filters): pill, white and outlined; the selected one is blue with `aria-pressed="true"`.
 - **Cards**: white panel, 12px radius, hairline border, soft downward shadow; hover lifts 2px with a deeper shadow. A drop target gets a blue ring.
-- **Badges** on covers: small white tiles with a colored dot (blue = playable, ink-secondary = archive, grey = folder/file, amber = duplicate). "Nouveau" is solid blue.
+- **Badges** on covers: small white tiles with a colored dot (blue = playable, ink-secondary = archive, grey = folder/file, amber = duplicate). "New" is solid blue.
 - **Favorite star**: white round tile, grey star; blue when on, with `aria-pressed`.
-- **Disclosure** ("Disparus récemment"): native `<details>`, ruled rows, a "+" that rotates 45° when open.
-- **Dialogs**: white panel, 12px radius, large soft shadow over a dimmed ink backdrop. Fields have a 13px label above them, white inputs, and a blue border plus a soft blue ring on focus.
+- **Disclosure** ("Recently removed"): native `<details>`, ruled rows, a "+" that rotates 45° when open.
+- **Dialogs**: white panel, 12px radius, large soft shadow over a dimmed ink backdrop. Fields have a 13px label above them, white inputs and selects (including the language selector in Settings), and a blue border plus a soft blue ring on focus.
 - **Toast and banner**: the dark passages (`field` background, `on-field` text).
 
 ## Motion
@@ -85,4 +85,4 @@ Only short hover and state transitions using the motion tokens. No entrance anim
 | ≤ 760px | Gutter 16px, gap 14px, smaller title and figures, the details dialog stacks the cover above the info |
 | ≤ 480px | Header buttons on one full-width row, facts in 2 columns, grid in 2 columns, smaller initials |
 
-Check renders at 1280, 760 and 380px after any visual change: no horizontal scroll, no console errors.
+Check renders at 1280, 760 and 380px, in English and French, after any visual change: no horizontal scroll, no console errors, no raw translation key.

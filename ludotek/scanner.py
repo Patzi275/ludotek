@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 from . import config
+from .i18n import number, t
 from .config import ARCHIVE_EXT, EXECUTABLE_EXT, IGNORED, IS_WIN, RESCAN_EVERY
 from .names import clean_name, detect_source, item_id, match_key
 from .storage import DB, LOCK, save_db
@@ -48,7 +49,7 @@ def scan():
         entries = list(os.scandir(root))
     except OSError as e:
         if str(e) != _last_error:
-            log.error("Lecture du dossier impossible : %s", e)
+            log.error(t("log.read_failed", error=e))
             _last_error = str(e)
         return
     _last_error = None
@@ -116,19 +117,20 @@ def scan():
         DB["last_seen_at"] = now
         LAST_SCAN = now
     if first:
-        log.info("Dossier scanné : %d élément(s), %d dossier(s) à analyser.", len(found), len(PENDING))
-    _log_changes("Nouveau", added)
-    _log_changes("Revenu", back_again)
-    _log_changes("Disparu", gone)
+        log.info(t("log.scanned", items=len(found), pending=len(PENDING)))
+    _log_changes("log.new", "log.new_many", added)
+    _log_changes("log.back", "log.back_many", back_again)
+    _log_changes("log.gone", "log.gone_many", gone)
     save_db()
 
 
-def _log_changes(label, names):
+def _log_changes(key, many_key, names):
+    """One line per name, or a single count line beyond MAX_LISTED."""
     if len(names) > MAX_LISTED:
-        log.info("%s : %d éléments.", label, len(names))
+        log.info(t(many_key, n=len(names)))
     else:
-        for n in names:
-            log.info("%s : %s", label, n)
+        for name in names:
+            log.info(t(key, name=name))
 
 
 def measure_dir(path, exe_depth=3):
@@ -168,8 +170,8 @@ def worker():
             continue
         t0 = time.time()
         size, exes = measure_dir(path)
-        log.info("Analysé : %s (%s Mo, %d exécutable(s), %s s)", path.name,
-                 f"{size / 1048576:.1f}".replace(".", ","), len(exes), f"{time.time() - t0:.1f}".replace(".", ","))
+        log.info(t("log.analysed", name=path.name, size=number(size / 1048576),
+                   exes=len(exes), secs=number(time.time() - t0)))
         try:
             mtime = path.stat().st_mtime
         except OSError:
@@ -181,7 +183,7 @@ def worker():
             PENDING.discard(iid)
             done = not PENDING
         if done:
-            log.info("Analyse des dossiers terminée.")
+            log.info(t("log.analysis_done"))
         save_db()
 
 
