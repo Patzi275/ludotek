@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# PyInstaller output (the .spec file is source: keep it)
+build/
+dist/
+
+# App data written when running the app from this folder
+.bibliotheque.json
+.bibliotheque.json.tmp
+.bibliotheque/
+.ludex.json
+.ludex.json.tmp
+
+# Tool caches (.impeccable/config.json is shared config: keep it)
+.impeccable/hook.cache.json
+
+# OS / editors
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ludex</title>
+<meta name="biblio-token" content="__TOKEN__">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="banner" id="banner">Le serveur de la bibliothèque est arrêté. Relance le script pour reprendre.</div>
+<header>
+  <div>
+    <h1>Ludex</h1>
+    <div class="path" id="path"></div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="settings">⚙ Réglages</button>
+  <button class="btn" id="rescan">↻ Rescanner</button>
+  <button class="btn danger" id="quit">Quitter</button>
+</header>
+<div class="stats" id="stats"></div>
+<div class="toolbar">
+  <input class="search" id="search" placeholder="Rechercher un jeu…" autocomplete="off">
+  <div class="chips" id="chips"></div>
+  <select id="sort">
+    <option value="name">Nom</option>
+    <option value="added">Ajout récent</option>
+    <option value="size">Taille</option>
+    <option value="played">Dernier lancé</option>
+  </select>
+</div>
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden>Aucun élément ne correspond.</div>
+  <details class="removed" id="removedBox" hidden>
+    <summary>Disparus récemment</summary>
+    <ul id="removed"></ul>
+  </details>
+</main>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="mhead">
+      <div class="mcover cover" id="mCover"></div>
+      <div class="mhead-info">
+        <h2 id="mTitle"></h2>
+        <div class="file" id="mFile"></div>
+        <div class="cover-btns">
+          <button class="btn" id="mPick">Choisir une image…</button>
+          <button class="btn" id="mUrl">Depuis une URL</button>
+          <button class="btn danger" id="mUncover">Retirer</button>
+        </div>
+        <div class="hint">Ou glisse une image ici, ou colle-la avec Ctrl+V.</div>
+        <input type="file" id="mFileInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+      </div>
+    </div>
+    <div class="field">
+      <label for="mDesc">Description</label>
+      <textarea id="mDesc" placeholder="De quoi parle le jeu, genre, avec qui y jouer…"></textarea>
+    </div>
+    <div class="field">
+      <label for="mStatus">Statut</label>
+      <select id="mStatus">
+        <option value="">—</option>
+        <option value="todo">Pas commencé</option>
+        <option value="playing">En cours</option>
+        <option value="done">Terminé</option>
+        <option value="dropped">Abandonné</option>
+      </select>
+    </div>
+    <div class="field" id="mExeField">
+      <label for="mExe">Exécutable à lancer</label>
+      <select id="mExe"></select>
+    </div>
+    <div class="field">
+      <label for="mNotes">Notes</label>
+      <textarea id="mNotes" placeholder="Clé de config, mods installés, progression…"></textarea>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="mLaunch"></button>
+      <button class="btn" id="mReveal">Ouvrir l'emplacement</button>
+      <div class="spacer"></div>
+      <button class="btn" id="mClose">Fermer</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="setBg">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <h2 id="setTitle">Réglages</h2>
+    <div class="field">
+      <label for="setRoot">Dossier des jeux</label>
+      <div class="row">
+        <input id="setRoot" spellcheck="false" autocomplete="off" placeholder="D:\Jeux">
+        <button class="btn" id="setBrowse">Parcourir…</button>
+      </div>
+      <div class="hint">Favoris, notes et jaquettes sont enregistrés dans ce dossier : chaque dossier garde les siens.</div>
+    </div>
+    <div class="row">
+      <div class="spacer"></div>
+      <button class="btn" id="setCancel">Annuler</button>
+      <button class="btn primary" id="setSave">Enregistrer</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/app.js"></script>
+</body>
+</html>

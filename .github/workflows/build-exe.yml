@@ -1,0 +1,73 @@
+# Builds the Windows .exe on every push to main (direct commit or merged PR).
+# PyInstaller does not cross-compile, hence the Windows runner.
+name: Build Windows exe
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-exe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyInstaller
+        run: python -m pip install pyinstaller==6.22.3
+
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1
+
+      # Starts the exe on a tiny games folder: catches a missing UI or font file.
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          $games = Join-Path $env:RUNNER_TEMP "games"
+          New-Item -ItemType Directory -Force -Path (Join-Path $games "Test Game") | Out-Null
+          $proc = Start-Process -FilePath "dist\Ludex.exe" -ArgumentList "`"$games`"", "--no-browser" -PassThru -WindowStyle Hidden
+          $base = "http://127.0.0.1:8765"
+          try {
+            $page = $null
+            for ($i = 0; $i -lt 30 -and -not $page; $i++) {
+              Start-Sleep -Seconds 1
+              try { $page = Invoke-WebRequest -UseBasicParsing "$base/" } catch {}
+            }
+            if (-not $page) { throw "L'exe ne répond pas sur $base." }
+            if ($page.Content -notmatch "<title>Ludex</title>") { throw "Page inattendue." }
+            foreach ($f in "app.js", "style.css", "fonts/host-grotesk.woff2", "fonts/instrument-sans.woff2") {
+              Invoke-WebRequest -UseBasicParsing "$base/$f" | Out-Null
+            }
+            $lib = Invoke-RestMethod "$base/api/library"
+            if (-not ($lib.items | Where-Object name -eq "Test Game")) { throw "Le dossier de test n'a pas été scanné." }
+            $token = [regex]::Match($page.Content, 'biblio-token" content="([^"]+)"').Groups[1].Value
+            Invoke-RestMethod -Method Post "$base/api/quit" -Headers @{ "X-Biblio-Token" = $token } -ContentType "application/json" -Body "{}" | Out-Null
+            if (-not $proc.WaitForExit(10000)) { throw "L'exe ne s'est pas arrêté après Quitter." }
+            Write-Host "Smoke test OK"
+          }
+          finally {
+            # A onefile exe runs as a parent + child process: kill the whole tree if still alive.
+            taskkill /PID $proc.Id /T /F 2>$null | Out-Null
+            # taskkill fails when the exe already stopped: that must not fail the step.
+            # (A test failure above is an exception, so it still fails the step.)
+            $global:LASTEXITCODE = 0
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ludex-${{ github.sha }}
+          path: dist/Ludex.exe
+          if-no-files-found: error
