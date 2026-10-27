@@ -19,6 +19,7 @@ STATIC = {
     "/style.css": ("style.css", "text/css; charset=utf-8"),
     "/fonts/host-grotesk.woff2": ("fonts/host-grotesk.woff2", "font/woff2"),
     "/fonts/instrument-sans.woff2": ("fonts/instrument-sans.woff2", "font/woff2"),
+    "/favicon.png": ("favicon.png", "image/png"),
 }
 
 
