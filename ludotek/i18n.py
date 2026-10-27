@@ -38,17 +38,18 @@ def plural_key(lang, key, n):
     return f"{key}.{'one' if one else 'other'}"
 
 
-def t(key, n=None, **params):
-    """Translated message in the current language. Pass n= for a plural key."""
-    lang = config.LANGUAGE
-    if n is not None:
-        key = plural_key(lang, key, n)
-        params.setdefault("n", n)
-    msg = _message(lang, key)
+def t(key, **params):
+    """Translated message in the current language. "n" is an ordinary placeholder here."""
+    msg = _message(config.LANGUAGE, key)
     try:
         return msg.format(**params)
     except (KeyError, IndexError, ValueError):
         return msg  # a broken translation must never crash the app
+
+
+def tn(key, n, **params):
+    """Plural message: picks "key.one" or "key.other" for n (same rule as tn() in app.js)."""
+    return t(plural_key(config.LANGUAGE, key, n), n=n, **params)
 
 
 def number(x, digits=1):
