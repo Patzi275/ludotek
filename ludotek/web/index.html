@@ -1,105 +1,111 @@
 <!doctype html>
-<html lang="fr">
+<html lang="__LANG__">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ludotek</title>
 <meta name="biblio-token" content="__TOKEN__">
 <link rel="stylesheet" href="/style.css">
+<!-- Current catalog + English fallback, injected by server.py. Texts come only from there. -->
+<script id="i18n" type="application/json">__I18N__</script>
 </head>
 <body>
-<div class="banner" id="banner">Le serveur de la bibliothèque est arrêté. Relance le script pour reprendre.</div>
+<div class="banner" id="banner" data-i18n="banner.stopped"></div>
 <header>
   <div>
     <h1>Ludotek <span class="version">v__VERSION__</span></h1>
     <div class="path" id="path"></div>
   </div>
   <div class="spacer"></div>
-  <button class="btn" id="settings">⚙ Réglages</button>
-  <button class="btn" id="rescan">↻ Rescanner</button>
-  <button class="btn danger" id="quit">Quitter</button>
+  <button class="btn" id="settings" data-i18n="header.settings"></button>
+  <button class="btn" id="rescan" data-i18n="header.rescan"></button>
+  <button class="btn danger" id="quit" data-i18n="header.quit"></button>
 </header>
 <div class="stats" id="stats"></div>
 <div class="toolbar">
-  <input class="search" id="search" placeholder="Rechercher un jeu…" autocomplete="off">
+  <input class="search" id="search" data-i18n-placeholder="search.placeholder" data-i18n-aria-label="search.placeholder" autocomplete="off">
   <div class="chips" id="chips"></div>
-  <select id="sort">
-    <option value="name">Nom</option>
-    <option value="added">Ajout récent</option>
-    <option value="size">Taille</option>
-    <option value="played">Dernier lancé</option>
+  <select id="sort" data-i18n-aria-label="sort.label">
+    <option value="name" data-i18n="sort.name"></option>
+    <option value="added" data-i18n="sort.added"></option>
+    <option value="size" data-i18n="sort.size"></option>
+    <option value="played" data-i18n="sort.played"></option>
   </select>
 </div>
 <main>
   <div class="grid" id="grid"></div>
-  <div class="empty" id="empty" hidden>Aucun élément ne correspond.</div>
+  <div class="empty" id="empty" data-i18n="grid.empty" hidden></div>
   <details class="removed" id="removedBox" hidden>
-    <summary>Disparus récemment</summary>
+    <summary data-i18n="removed.title"></summary>
     <ul id="removed"></ul>
   </details>
 </main>
 
 <div class="modal-bg" id="modalBg">
-  <div class="modal" role="dialog" aria-modal="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
     <div class="mhead">
       <div class="mcover cover" id="mCover"></div>
       <div class="mhead-info">
         <h2 id="mTitle"></h2>
         <div class="file" id="mFile"></div>
         <div class="cover-btns">
-          <button class="btn" id="mPick">Choisir une image…</button>
-          <button class="btn" id="mUrl">Depuis une URL</button>
-          <button class="btn danger" id="mUncover">Retirer</button>
+          <button class="btn" id="mPick" data-i18n="details.pick_image"></button>
+          <button class="btn" id="mUrl" data-i18n="details.from_url"></button>
+          <button class="btn danger" id="mUncover" data-i18n="details.remove_cover"></button>
         </div>
-        <div class="hint">Ou glisse une image ici, ou colle-la avec Ctrl+V.</div>
+        <div class="hint" data-i18n="details.cover_hint"></div>
         <input type="file" id="mFileInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
       </div>
     </div>
     <div class="field">
-      <label for="mDesc">Description</label>
-      <textarea id="mDesc" placeholder="De quoi parle le jeu, genre, avec qui y jouer…"></textarea>
+      <label for="mDesc" data-i18n="details.description"></label>
+      <textarea id="mDesc" data-i18n-placeholder="details.description_placeholder"></textarea>
     </div>
     <div class="field">
-      <label for="mStatus">Statut</label>
+      <label for="mStatus" data-i18n="details.status"></label>
       <select id="mStatus">
         <option value="">—</option>
-        <option value="todo">Pas commencé</option>
-        <option value="playing">En cours</option>
-        <option value="done">Terminé</option>
-        <option value="dropped">Abandonné</option>
+        <option value="todo" data-i18n="status.todo"></option>
+        <option value="playing" data-i18n="status.playing"></option>
+        <option value="done" data-i18n="status.done"></option>
+        <option value="dropped" data-i18n="status.dropped"></option>
       </select>
     </div>
     <div class="field" id="mExeField">
-      <label for="mExe">Exécutable à lancer</label>
+      <label for="mExe" data-i18n="details.exe"></label>
       <select id="mExe"></select>
     </div>
     <div class="field">
-      <label for="mNotes">Notes</label>
-      <textarea id="mNotes" placeholder="Clé de config, mods installés, progression…"></textarea>
+      <label for="mNotes" data-i18n="details.notes"></label>
+      <textarea id="mNotes" data-i18n-placeholder="details.notes_placeholder"></textarea>
     </div>
     <div class="row">
       <button class="btn primary" id="mLaunch"></button>
-      <button class="btn" id="mReveal">Ouvrir l'emplacement</button>
+      <button class="btn" id="mReveal" data-i18n="details.reveal"></button>
       <div class="spacer"></div>
-      <button class="btn" id="mClose">Fermer</button>
+      <button class="btn" id="mClose" data-i18n="details.close"></button>
     </div>
   </div>
 </div>
 <div class="modal-bg" id="setBg">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
-    <h2 id="setTitle">Réglages</h2>
+    <h2 id="setTitle" data-i18n="settings.title"></h2>
     <div class="field">
-      <label for="setRoot">Dossier des jeux</label>
+      <label for="setRoot" data-i18n="settings.folder"></label>
       <div class="row">
-        <input id="setRoot" spellcheck="false" autocomplete="off" placeholder="D:\Jeux">
-        <button class="btn" id="setBrowse">Parcourir…</button>
+        <input id="setRoot" spellcheck="false" autocomplete="off" data-i18n-placeholder="settings.folder_placeholder">
+        <button class="btn" id="setBrowse" data-i18n="settings.browse"></button>
       </div>
-      <div class="hint">Favoris, notes et jaquettes sont enregistrés dans ce dossier : chaque dossier garde les siens.</div>
+      <div class="hint" data-i18n="settings.folder_hint"></div>
+    </div>
+    <div class="field">
+      <label for="setLang" data-i18n="settings.language"></label>
+      <select id="setLang"></select>
     </div>
     <div class="row">
       <div class="spacer"></div>
-      <button class="btn" id="setCancel">Annuler</button>
-      <button class="btn primary" id="setSave">Enregistrer</button>
+      <button class="btn" id="setCancel" data-i18n="settings.cancel"></button>
+      <button class="btn primary" id="setSave" data-i18n="settings.save"></button>
     </div>
   </div>
 </div>
