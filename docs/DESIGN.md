@@ -57,7 +57,7 @@ From top to bottom:
 
 1. **Header** on `ground`: title + version + watched path, then "Settings", "Rescan", "Quit".
 2. **Facts strip**: the stats as a ruled strip (hairline top and bottom, vertical rules between figures), not as cards.
-3. **Sticky toolbar** on translucent `ground`: search, filter chips, sort.
+3. **Sticky toolbar** on translucent `ground`: search, filter chips, sort, layout switcher.
 4. **Library field** on `ground-muted`: the card grid, then the "Recently removed" disclosure.
 
 Every band aligns on the same content width (max 1320px) through `--inline`. Keep it that way for new bands.
@@ -65,6 +65,9 @@ Every band aligns on the same content width (max 1320px) through `--inline`. Kee
 ## Components
 
 - **Buttons**: modest radius (8px), min height 40px (36px for the cover buttons in the details dialog), Instrument Sans 500/600. Secondary buttons are white and outlined; primary buttons are blue. Hover lifts by 1px and changes the fill; `:active` returns to rest.
+- **Layout switcher**: one segmented control with four 16px icon buttons: small grid, medium grid (default), large grid, list. It has `role="group"` and a translated `aria-label`, each button has a translated `title` and `aria-label`, and the selected one is blue with `aria-pressed="true"`, like the chips.
+- **Grid sizes**: each size sets `--card-min` (160 / 210 / 280px, smaller below 760px). Initials scale with the cover through `cqi` (the cover is a size container), so proportions hold at every size. The small grid hides descriptions and tightens the card; action labels get an ellipsis instead of overflowing.
+- **List rows**: white panel rows (same border, radius and shadow as cards) with a 44px cover thumbnail, title (ellipsis) + meta + badges, status, then star, main action and details. Below 760px the status is hidden; below 480px the actions wrap under the title.
 - **Chips** (filters): pill, white and outlined; the selected one is blue with `aria-pressed="true"`.
 - **Cards**: white panel, 12px radius, hairline border, soft downward shadow; hover lifts 2px with a deeper shadow. A drop target gets a blue ring.
 - **Badges** on covers: small white tiles with a colored dot (blue = playable, ink-secondary = archive, grey = folder/file, amber = duplicate). "New" is solid blue.
@@ -89,7 +92,7 @@ Only short hover and state transitions using the motion tokens. No entrance anim
 | Width | Changes |
 | --- | --- |
 | ≤ 1050px | Gutter 24px, grid gap 18px |
-| ≤ 760px | Gutter 16px, gap 14px, smaller title and figures, the details dialog stacks the cover above the info |
-| ≤ 480px | Header buttons on one full-width row, facts in 2 columns, grid in 2 columns, smaller initials |
+| ≤ 760px | Gutter 16px, gap 14px, smaller title and figures, card widths 130 / 170 / 230px, list status hidden, the details dialog stacks the cover above the info |
+| ≤ 480px | Header buttons on one full-width row, facts in 2 columns, small and medium grids in 2 columns, large grid in 1, list actions under the title |
 
 Check renders at 1280, 760 and 380px, in English and French, after any visual change: no horizontal scroll, no console errors, no raw translation key.
