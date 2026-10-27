@@ -35,7 +35,7 @@ python3 -m ludotek --no-browser
 
 Tests: `pip install pytest`, then `python -m pytest -q`.
 
-**Adding a language**: copy `ludotek/web/i18n/en.json` to `<code>.json` (ISO 639-1, e.g. `es.json`), translate the values (keep the keys and `{placeholders}`), set `language.name`, `number.decimal`, `size.units` and `plural.zero_is_one`. The tests check the new catalog is complete.
+**Adding a language**: copy `ludotek/web/i18n/en.json` to `<code>.json` (ISO 639-1, e.g. `es.json`), translate the values (keep the keys and `{placeholders}`), set `language.name`, `number.decimal`, `size.units` and `plural.zero_is_one`. For Windows to pick it up as the system language, add its code to `_WIN_LANGS` in `ludotek/i18n.py` (already there: de, en, es, fr, it, pt). The tests check the new catalog is complete.
 
 Build the exe on Windows: `pip install pyinstaller`, then `.\script\build.ps1` (output: `dist\Ludotek.exe`). Every push to `main` also builds it in CI.
 
