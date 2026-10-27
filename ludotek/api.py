@@ -7,7 +7,7 @@ import logging
 import time
 from pathlib import Path
 
-from . import config, i18n, scanner, storage
+from . import config, enrich, i18n, scanner, steam, storage
 from .covers import clear_cover, fetch_image, set_cover
 from .i18n import t
 from .names import clean_name
@@ -75,6 +75,7 @@ def payload():
                 "last_launched": rec.get("last_launched"),
                 "is_new": storage.PREV_SEEN is not None and rec.get("first_seen", 0) > storage.PREV_SEEN,
                 "dup": len(groups.get(cur["key"], [])) > 1,
+                "needs_info": enrich.needs(rec, cur["kind"]),
             })
         removed = sorted(
             ({"file": r.get("file"),
@@ -83,7 +84,8 @@ def payload():
              for r in DB["removed"].values()),
             key=lambda r: r["removed_at"] or 0, reverse=True,
         )[:20]
-    return {"root": str(config.ROOT), "scanned_at": scanner.LAST_SCAN, "items": items, "removed": removed}
+    return {"root": str(config.ROOT), "scanned_at": scanner.LAST_SCAN, "items": items, "removed": removed,
+            "enrich": enrich.status()}
 
 
 def _record(iid):
@@ -108,6 +110,14 @@ def _open(fn, target):
         raise ApiError(500, str(e))
 
 
+def _set_cover_source(iid, source):
+    with LOCK:
+        rec = DB["items"].get(iid)
+        if rec is not None:
+            rec["cover_source"] = source
+    save_db()
+
+
 def rescan(iid, req):
     log.info(t("log.rescan"))
     scanner.scan()
@@ -118,9 +128,13 @@ def update(iid, req):
     body = req["json"]
     with LOCK:
         rec = _record(iid)
+        old_description = rec.get("description", "")
         for field, clean in UPDATABLE.items():
             if field in body:
                 rec[field] = clean(body[field])
+        if rec.get("description", "") != old_description:
+            # The user's text wins over the Steam fill; emptied on purpose means "do not refill".
+            rec["description_source"] = "manual" if rec["description"] else "removed"
         # Only an executable found by the scan can be chosen.
         if "exe" in body and (body["exe"] is None or body["exe"] in (rec.get("exes") or [])):
             rec["exe"] = body["exe"]
@@ -167,6 +181,7 @@ def cover(iid, req):
         set_cover(iid, data)
     except (ValueError, OSError) as e:
         raise ApiError(400, str(e) or t("error.download_failed"))
+    _set_cover_source(iid, "manual")
     log.info(t("log.cover_added", name=_name(iid)))
     return OK
 
@@ -176,6 +191,7 @@ def uncover(iid, req):
         clear_cover(iid)
     except ValueError as e:
         raise ApiError(404, str(e))
+    _set_cover_source(iid, "removed")  # the Steam fill will not bring it back
     log.info(t("log.cover_removed", name=_name(iid)))
     return OK
 
@@ -231,6 +247,42 @@ def browse(iid, req):
         raise ApiError(400, str(e))
 
 
+def fill(iid, req):
+    """Start (or with {"stop": true}, stop) the Steam fill of every game missing a cover or a description."""
+    if req["json"].get("stop"):
+        enrich.stop()
+        return OK
+    total = enrich.start()
+    if total is None:
+        raise ApiError(409, t("error.enrich_busy"))
+    return {"ok": True, "total": total}
+
+
+def steam_search(iid, req):
+    """Top Steam results for one game. Blocks the request for a second or two (tolerated)."""
+    with LOCK:
+        _record(iid)
+    try:
+        return {"candidates": enrich.candidates(iid)}
+    except steam.SteamError:
+        raise ApiError(502, t("error.steam_unavailable"))
+
+
+def steam_apply(iid, req):
+    """Fill one game from the store page the user picked."""
+    appid = req["json"].get("appid")
+    if not steam.valid_appid(appid):
+        raise ApiError(400, t("error.bad_appid"))
+    with LOCK:
+        name = _record(iid)["file"]
+    try:
+        (cover_set, desc_set), title = enrich.apply_choice(iid, appid)
+    except steam.SteamError:
+        raise ApiError(502, t("error.steam_unavailable"))
+    log.info(t("log.steam_applied", name=name, title=title))
+    return {"ok": True, "cover": cover_set, "description": desc_set}
+
+
 # POST /api/<action>/<id>. "quit" lives in server.py since it stops the server.
 ACTIONS = {
     "rescan": rescan,
@@ -241,4 +293,7 @@ ACTIONS = {
     "uncover": uncover,
     "settings": settings,
     "browse": browse,
+    "enrich": fill,
+    "steam_search": steam_search,
+    "steam_apply": steam_apply,
 }

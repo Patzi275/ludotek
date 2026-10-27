@@ -20,7 +20,7 @@ function applyI18n() {
 }
 applyI18n();
 
-let state = {items: [], removed: []}, lastJson = "", filter = "all", sortBy = "name", query = "", openId = null;
+let state = {items: [], removed: [], enrich: {}}, wasFilling = false, lastJson = "", filter = "all", sortBy = "name", query = "", openId = null;
 
 // Library layouts: same values as api.VIEWS (checked by tests). The saved one comes from <html data-view>.
 const VIEWS = ["grid-s", "grid-m", "grid-l", "list"];
@@ -91,6 +91,7 @@ const byId = id => state.items.find(i => i.id === id);
 
 function render() {
   const items = state.items;
+  renderFill(state.enrich || {});
   $("#path").textContent = state.root;
   const total = items.reduce((s, i) => s + (i.size || 0), 0);
   const pending = items.filter(i => i.computing).length;
@@ -165,6 +166,15 @@ function rowHtml(it) {
   </div>`;
 }
 
+// ---- Steam fill: header button shows progress, a toast sums up when the job ends.
+function renderFill(job) {
+  const btn = $("#enrich");
+  btn.textContent = job.running ? t("header.enrich_stop", {done: job.done, total: job.total}) : t("header.enrich");
+  btn.classList.toggle("running", !!job.running);
+  if (wasFilling && !job.running) toast(t("enrich.done", job));
+  wasFilling = !!job.running;
+}
+
 function applyView() {
   $("#grid").className = view === "list" ? "grid list" : `grid size-${view.slice(-1)}`;
   document.querySelectorAll("#views [data-view]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
@@ -180,7 +190,7 @@ async function act(id, action) {
   } catch (e) { toast(e.message); }
 }
 
-function openModal(id) { openId = id; fillModal(true); $("#modalBg").classList.add("open"); }
+function openModal(id) { openId = id; $("#mCandidates").hidden = true; fillModal(true); $("#modalBg").classList.add("open"); }
 function closeModal() { openId = null; $("#modalBg").classList.remove("open"); }
 function fillModal(full) {
   const it = byId(openId); if (!it) return closeModal();
@@ -211,6 +221,15 @@ $("#chips").addEventListener("click", e => {
 });
 $("#search").addEventListener("input", e => { query = e.target.value; render(); });
 $("#sort").addEventListener("change", e => { sortBy = e.target.value; render(); });
+$("#enrich").addEventListener("click", async () => {
+  try {
+    if (state.enrich && state.enrich.running) { await post("/api/enrich", {stop: true}); return load(true); }
+    const n = state.items.filter(i => i.needs_info).length;
+    if (!n) return toast(t("enrich.nothing"));
+    if (!confirm(t("enrich.confirm", {n}))) return;
+    await post("/api/enrich"); load(true);
+  } catch (e) { toast(e.message); }
+});
 $("#views").addEventListener("click", e => {
   const b = e.target.closest("[data-view]"); if (!b || b.dataset.view === view) return;
   view = b.dataset.view; applyView(); render();
@@ -289,6 +308,30 @@ $("#mFileInput").addEventListener("change", e => { const f = e.target.files[0]; 
 $("#mUrl").addEventListener("click", () => {
   const url = prompt(t("details.cover_url_prompt"));
   if (url && url.trim()) coverFromUrl(openId, url.trim());
+});
+// Per-game Steam search: the user picks the right store page among the top results.
+$("#mSteam").addEventListener("click", async () => {
+  const id = openId, box = $("#mCandidates");
+  box.hidden = false; box.innerHTML = `<p class="hint">${esc(t("details.steam_searching"))}</p>`;
+  try {
+    const {candidates} = await post("/api/steam_search/" + id);
+    if (openId !== id) return;
+    if (!candidates.length) { box.hidden = true; return toast(t("details.steam_none")); }
+    box.innerHTML = `<p class="hint">${esc(t("details.steam_pick"))}</p><div class="cand-list">` + candidates.map(c =>
+      `<button class="cand" data-appid="${c.appid}" title="${esc(c.name)}"><img src="${esc(c.image)}" data-fallback="${esc(c.fallback || "")}" alt=""><span>${esc(c.name)}</span></button>`
+    ).join("") + "</div>";
+    // Old games have no portrait cover: show Steam's small capsule instead, or nothing.
+    box.querySelectorAll("img").forEach(img => img.addEventListener("error", () => {
+      if (img.dataset.fallback && img.src !== img.dataset.fallback) img.src = img.dataset.fallback; else img.remove();
+    }));
+  } catch (e) { box.hidden = true; toast(e.message); }
+});
+$("#mCandidates").addEventListener("click", async e => {
+  const b = e.target.closest("[data-appid]"); if (!b) return;
+  try {
+    await post("/api/steam_apply/" + openId, {appid: Number(b.dataset.appid)});
+    $("#mCandidates").hidden = true; toast(t("toast.steam_applied")); await load(true); fillModal(true);
+  } catch (err) { toast(err.message); }
 });
 $("#mUncover").addEventListener("click", () => post("/api/uncover/" + openId).then(() => { toast(t("toast.image_removed")); load(true); }));
 

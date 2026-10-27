@@ -37,6 +37,27 @@ def match_key(name):
     return " ".join(toks)
 
 
+SEQUEL_RE = re.compile(r"^(\d+|i{2,3}|iv|vi{0,3}|ix|x)$")  # "2", "ii", "iv"… mark another game
+
+
+def match_score(name, candidate):
+    """How surely `candidate` (a store title) is the same game as `name`, from 0 to 1.
+
+    Conservative on purpose (a wrong cover is worse than none): 1.0 for the same key,
+    0.8 when every word of `name` is in `candidate` and the extra words are not a sequel
+    number ("Skyrim" -> "The Elder Scrolls V: Skyrim"), else the word overlap (Jaccard).
+    """
+    a, b = match_key(name).split(), match_key(candidate).split()
+    if not a or not b:
+        return 0.0
+    if a == b:
+        return 1.0
+    sa, sb = set(a), set(b)
+    if sa <= sb and not any(SEQUEL_RE.match(w) for w in sb - sa):
+        return 0.8
+    return len(sa & sb) / len(sa | sb)
+
+
 def detect_source(filename):
     for label, rx in SOURCES:
         if rx.search(filename):
