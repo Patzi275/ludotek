@@ -4,7 +4,7 @@
 
 A portable game library for a folder of PC games. Drop `Ludotek.exe` next to your games and it turns the folder into a browsable library. Nothing to install, it works offline, and it never writes to your user profile.
 
-The interface is in French.
+Available in English and French. Ludotek picks your system language and you can switch in **Settings**.
 
 ## Features
 
@@ -14,14 +14,15 @@ The interface is in French.
 - Launches games and opens their location.
 - Favorites, status, notes, description and cover art (file, URL, drag and drop or paste).
 - Watches for added and removed items, and lets you switch to another games folder from the settings.
+- English and French interface, errors and console, with your system language by default.
 
 ## Usage
 
 1. Download `Ludotek.exe` from the [latest release](../../releases/latest).
-2. Put it in your games folder and run it, or choose another folder later in **Réglages**.
-3. The library opens in your browser. The console window logs what Ludotek does; close it (or click **Quitter**) to stop the app.
+2. Put it in your games folder and run it, or choose another folder later in **Settings**.
+3. The library opens in your browser. The console window logs what Ludotek does; close it (or click **Quit**) to stop the app.
 
-Library data is stored in the games folder itself (`.bibliotheque.json`, `.bibliotheque/`). The chosen folder is remembered in `.ludotek.json`, next to the exe.
+Library data is stored in the games folder itself (`.bibliotheque.json`, `.bibliotheque/`). The chosen folder and language are remembered in `.ludotek.json`, next to the exe.
 
 ## From source
 
@@ -31,6 +32,10 @@ Requires Python 3.8+, standard library only.
 python3 -m ludotek "D:\Jeux"         # from the repo root; no argument: saved folder, else the repo root
 python3 -m ludotek --no-browser
 ```
+
+Tests: `pip install pytest`, then `python -m pytest -q`.
+
+**Adding a language**: copy `ludotek/web/i18n/en.json` to `<code>.json` (ISO 639-1, e.g. `es.json`), translate the values (keep the keys and `{placeholders}`), set `language.name`, `number.decimal`, `size.units` and `plural.zero_is_one`. The tests check the new catalog is complete.
 
 Build the exe on Windows: `pip install pyinstaller`, then `.\script\build.ps1` (output: `dist\Ludotek.exe`). Every push to `main` also builds it in CI.
 

@@ -2,7 +2,7 @@
 
 The UI is a practical tool: a light, open page where the games are easy to scan. It uses the "Software" design system (light ground, dark tight headings, one electric-blue action color, white rounded cards), adapted to the app. The app is not a marketing page, so the hero diagram, pricing cards and editorial photos from that system are not used.
 
-All of it lives in `ludotek/web/style.css`. User-facing text stays in French.
+All of it lives in `ludotek/web/style.css`. Texts come from the translation catalogs (`ludotek/web/i18n/`): layouts must hold in every language, and English labels are often longer than French ones.
 
 ## Tokens
 
@@ -85,4 +85,4 @@ Only short hover and state transitions using the motion tokens. No entrance anim
 | ≤ 760px | Gutter 16px, gap 14px, smaller title and figures, the details dialog stacks the cover above the info |
 | ≤ 480px | Header buttons on one full-width row, facts in 2 columns, grid in 2 columns, smaller initials |
 
-Check renders at 1280, 760 and 380px after any visual change: no horizontal scroll, no console errors.
+Check renders at 1280, 760 and 380px, in English and French, after any visual change: no horizontal scroll, no console errors, no raw translation key.
