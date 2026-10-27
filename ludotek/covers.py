@@ -5,6 +5,7 @@ import urllib.request
 
 from . import config
 from .config import COVER_NAME_RE, IMAGE_TYPES, MAX_IMAGE
+from .i18n import t
 from .storage import DB, LOCK, save_db
 
 
@@ -23,12 +24,12 @@ def sniff_image(data):
 
 def fetch_image(url):
     if not re.match(r"^https?://", url or "", re.I):
-        raise ValueError("URL invalide (http ou https attendu).")
+        raise ValueError(t("error.bad_url"))
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 Ludotek"})
     with urllib.request.urlopen(req, timeout=20) as r:
         data = r.read(MAX_IMAGE + 1)
     if len(data) > MAX_IMAGE:
-        raise ValueError("Image trop lourde (15 Mo max).")
+        raise ValueError(t("error.image_too_big"))
     return data
 
 
@@ -52,11 +53,11 @@ def remove_cover_files(iid):
 def set_cover(iid, data):
     ext = sniff_image(data)
     if not ext:
-        raise ValueError("Format non supporté (PNG, JPG, WEBP ou GIF).")
+        raise ValueError(t("error.unsupported_format"))
     with LOCK:
         rec = DB["items"].get(iid)
         if rec is None:
-            raise ValueError("Élément inconnu.")
+            raise ValueError(t("error.unknown_item"))
         config.COVERS_DIR.mkdir(parents=True, exist_ok=True)
         remove_cover_files(iid)
         (config.COVERS_DIR / (iid + ext)).write_bytes(data)
@@ -69,7 +70,7 @@ def clear_cover(iid):
     with LOCK:
         rec = DB["items"].get(iid)
         if rec is None:
-            raise ValueError("Élément inconnu.")
+            raise ValueError(t("error.unknown_item"))
         remove_cover_files(iid)
         rec.pop("cover", None)
         rec.pop("cover_v", None)

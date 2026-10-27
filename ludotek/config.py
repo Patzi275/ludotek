@@ -66,5 +66,7 @@ def _initial_root():
 ROOT = DB_PATH = COVERS_DIR = None
 set_root(_initial_root())
 
+LANGUAGE = "en"  # set by i18n at import: saved setting, else system language, else English
+
 ARCHIVE_EXT = {".rar", ".zip", ".7z", ".iso", ".tar", ".gz"}
 EXECUTABLE_EXT = {".exe", ".msi"}

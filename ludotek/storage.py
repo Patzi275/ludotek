@@ -9,6 +9,7 @@ import os
 import threading
 
 from . import config
+from .i18n import t
 
 log = logging.getLogger(__name__)
 LOCK = threading.RLock()
@@ -50,7 +51,7 @@ def save_db():
             os.replace(tmp, config.DB_PATH)
             _last_saved = text
         except OSError as e:
-            log.error("Impossible d'écrire %s : %s", config.DB_PATH, e)
+            log.error(t("log.db_write_failed", path=config.DB_PATH, error=e))
 
 
 reload()

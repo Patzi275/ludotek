@@ -5,9 +5,10 @@ import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
-from . import __version__, api
+from . import __version__, api, config
 from .config import MAX_IMAGE, PORT, TOKEN, WEB_DIR
 from .covers import read_cover
+from .i18n import page_data, t
 
 log = logging.getLogger(__name__)
 
@@ -19,6 +20,11 @@ STATIC = {
     "/fonts/host-grotesk.woff2": ("fonts/host-grotesk.woff2", "font/woff2"),
     "/fonts/instrument-sans.woff2": ("fonts/instrument-sans.woff2", "font/woff2"),
 }
+
+
+def _i18n_json():
+    # Inlined in a <script type="application/json">: "</" must not close the tag.
+    return json.dumps(page_data(), ensure_ascii=False).replace("</", "<\\/").encode("utf-8")
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -45,13 +51,16 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if not self._host_ok():
-            return self._send(403, {"error": "hôte refusé"})
+            return self._send(403, {"error": t("error.host_refused")})
         path = urlparse(self.path).path
         if path in STATIC:
             name, ctype = STATIC[path]
             data = (WEB_DIR / name).read_bytes()
             if name == "index.html":
-                data = data.replace(b"__TOKEN__", TOKEN.encode()).replace(b"__VERSION__", __version__.encode())
+                data = (data.replace(b"__TOKEN__", TOKEN.encode())
+                        .replace(b"__VERSION__", __version__.encode())
+                        .replace(b"__LANG__", config.LANGUAGE.encode())
+                        .replace(b"__I18N__", _i18n_json()))
             return self._send(200, data, ctype)
         if path == "/api/library":
             return self._send(200, api.payload())
@@ -59,29 +68,29 @@ class Handler(BaseHTTPRequestHandler):
             found = read_cover(path[len("/covers/"):])
             if found:
                 return self._send(200, found[0], found[1], "max-age=31536000, immutable")
-        self._send(404, {"error": "introuvable"})
+        self._send(404, {"error": t("error.not_found")})
 
     def do_POST(self):
         # The custom header forces a CORS preflight, which we never answer: other sites cannot POST.
         if not self._host_ok() or self.headers.get("X-Biblio-Token") != TOKEN:
-            return self._send(403, {"error": "refusé"})
+            return self._send(403, {"error": t("error.refused")})
         req = self._read_body()
         if req is None:
-            return self._send(413, {"error": "Fichier trop lourd (15 Mo max)."})
+            return self._send(413, {"error": t("error.file_too_big")})
         parts = urlparse(self.path).path.strip("/").split("/")
         if parts[:1] != ["api"] or len(parts) < 2:
-            return self._send(404, {"error": "introuvable"})
+            return self._send(404, {"error": t("error.not_found")})
         action = parts[1]
         iid = parts[2] if len(parts) > 2 else None
 
         if action == "quit":
-            log.info("Arrêt demandé depuis l'interface.")
+            log.info(t("log.quit"))
             self._send(200, api.OK)
             threading.Thread(target=self.server.shutdown, daemon=True).start()
             return
         fn = api.ACTIONS.get(action)
         if fn is None:
-            return self._send(404, {"error": "action inconnue"})
+            return self._send(404, {"error": t("error.unknown_action")})
         try:
             self._send(200, fn(iid, req))
         except api.ApiError as e:
@@ -113,4 +122,4 @@ def make_server():
             return ThreadingHTTPServer(("127.0.0.1", port), Handler)
         except OSError:
             continue
-    raise SystemExit("Impossible d'ouvrir un port local.")
+    raise SystemExit(t("error.no_port"))
