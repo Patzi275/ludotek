@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 FROZEN = getattr(sys, "frozen", False)
-# Folder holding the .exe (frozen build) or library.py (dev).
+# Folder holding the .exe (frozen build) or the repo root, parent of the ludotek/ package (dev).
 APP_DIR = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent
 ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
 # Which folder to watch. The only file stored outside the watched folder: it sits next to the app.
@@ -15,7 +15,7 @@ SETTINGS_PATH = APP_DIR / ".ludotek.json"
 WEB_DIR = Path(__file__).resolve().parent / "web"
 
 # Our own files, in case the app sits inside the games folder.
-IGNORED = {"library.py", "gamelib", "bibliotheque.py", "bibliotheque.exe", "ludotek.exe", "desktop.ini", "thumbs.db"}
+IGNORED = {"ludotek", "bibliotheque.py", "bibliotheque.exe", "ludotek.exe", "desktop.ini", "thumbs.db"}
 if FROZEN:
     IGNORED.add(Path(sys.executable).name.lower())
 

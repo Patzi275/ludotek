@@ -1,8 +1,9 @@
 $ErrorActionPreference = "Stop"
 
-$projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$specFile = Join-Path $projectRoot "ludotek.spec"
-$webDirectory = Join-Path $projectRoot "gamelib\web"
+# This script lives in script/: the project root is its parent folder.
+$projectRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$specFile = Join-Path $projectRoot "script\ludotek.spec"
+$webDirectory = Join-Path $projectRoot "ludotek\web"
 $distDirectory = Join-Path $projectRoot "dist"
 $executable = Join-Path $distDirectory "Ludotek.exe"
 

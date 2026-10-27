@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-SPEC_FILE="$PROJECT_ROOT/ludotek.spec"
-WEB_DIRECTORY="$PROJECT_ROOT/gamelib/web"
+# This script lives in script/: the project root is its parent folder.
+PROJECT_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+SPEC_FILE="$PROJECT_ROOT/script/ludotek.spec"
+WEB_DIRECTORY="$PROJECT_ROOT/ludotek/web"
 DIST_DIRECTORY="$PROJECT_ROOT/dist"
 EXECUTABLE="$DIST_DIRECTORY/Ludotek.exe"
 
@@ -44,7 +45,7 @@ case "$(uname -s)" in
         ;;
     *)
         # PyInstaller builds for the current OS: on Linux/WSL this is a Linux binary, not the Windows .exe.
-        echo "Attention : ce build produit un exécutable Linux. Pour le .exe Windows, lance build.ps1 sous Windows." >&2
+        echo "Attention : ce build produit un exécutable Linux. Pour le .exe Windows, lance script\build.ps1 sous Windows." >&2
         EXECUTABLE="$DIST_DIRECTORY/Ludotek"
         ;;
 esac

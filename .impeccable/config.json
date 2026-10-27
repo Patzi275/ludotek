@@ -7,7 +7,7 @@
         "rule": "overused-font",
         "value": "instrument sans",
         "createdAt": "2026-10-27T11:57:15.370Z",
-        "reason": "Required by the user-supplied 'Software' design system (Instrument Sans for paragraphs, labels and controls); documented in DESIGN.md"
+        "reason": "Required by the user-supplied 'Software' design system (Instrument Sans for paragraphs, labels and controls); documented in docs/DESIGN.md"
       }
     ]
   }

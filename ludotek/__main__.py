@@ -4,13 +4,13 @@
 Ludotek — a game library manager that lives inside the games folder.
 
 Usage:
-    1. Put library.py and the gamelib/ folder in the games folder.
-    2. Double-click library.py (or: python library.py).
+    1. From the repo root: python -m ludotek (or run the built Ludotek.exe).
+    2. Without a folder argument it watches the saved folder, else the repo root / exe folder.
     3. The interface opens in the browser.
 
 Options:
-    python library.py "D:\\Jeux"     -> watch another folder
-    python library.py --no-browser  -> do not open the browser
+    python -m ludotek "D:\\Jeux"     -> watch another folder
+    python -m ludotek --no-browser  -> do not open the browser
 
 No dependencies: standard library only (Python 3.8+).
 Favorites, notes, statuses and cached sizes are stored in .bibliotheque.json.
@@ -20,9 +20,10 @@ import sys
 import threading
 import webbrowser
 
-from gamelib import __version__, config, scanner
-from gamelib.server import make_server
-from gamelib.storage import save_db
+# Absolute imports: this file is also PyInstaller's entry script, run as a top-level module.
+from ludotek import __version__, config, scanner
+from ludotek.server import make_server
+from ludotek.storage import save_db
 
 
 def setup_logging():

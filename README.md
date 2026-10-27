@@ -28,11 +28,11 @@ Library data is stored in the games folder itself (`.bibliotheque.json`, `.bibli
 Requires Python 3.8+, standard library only.
 
 ```bash
-python3 library.py "D:\Jeux"         # or no argument: saved folder, else the script's folder
-python3 library.py --no-browser
+python3 -m ludotek "D:\Jeux"         # from the repo root; no argument: saved folder, else the repo root
+python3 -m ludotek --no-browser
 ```
 
-Build the exe on Windows: `pip install pyinstaller`, then `.\build.ps1` (output: `dist\Ludotek.exe`). Every push to `main` also builds it in CI.
+Build the exe on Windows: `pip install pyinstaller`, then `.\script\build.ps1` (output: `dist\Ludotek.exe`). Every push to `main` also builds it in CI.
 
 **Releasing**: write [Conventional Commits](https://www.conventionalcommits.org) (`fix:` → patch, `feat:` → minor, `feat!:` → breaking). [release-please](https://github.com/googleapis/release-please) keeps a release PR open with the next version and `CHANGELOG.md`; merging it tags `vX.Y.Z`, publishes the release and CI attaches `Ludotek.exe`.
 
@@ -50,4 +50,4 @@ The server only listens on `127.0.0.1`. Every action needs a per-session token, 
 
 ## Credits
 
-[Host Grotesk](https://github.com/Element-Type/HostGrotesk) and [Instrument Sans](https://github.com/Instrument/instrument-sans) fonts, under the SIL Open Font License (see `gamelib/web/fonts/`).
+[Host Grotesk](https://github.com/Element-Type/HostGrotesk) and [Instrument Sans](https://github.com/Instrument/instrument-sans) fonts, under the SIL Open Font License (see `ludotek/web/fonts/`).

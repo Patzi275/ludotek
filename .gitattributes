@@ -1,0 +1,6 @@
+# Normalize text files; keep shell scripts LF so Git Bash on Windows can run them.
+* text=auto
+*.sh text eol=lf
+*.woff2 binary
+*.png binary
+*.jpg binary

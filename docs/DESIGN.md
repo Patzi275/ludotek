@@ -2,7 +2,7 @@
 
 The UI is a practical tool: a light, open page where the games are easy to scan. It uses the "Software" design system (light ground, dark tight headings, one electric-blue action color, white rounded cards), adapted to the app. The app is not a marketing page, so the hero diagram, pricing cards and editorial photos from that system are not used.
 
-All of it lives in `gamelib/web/style.css`. User-facing text stays in French.
+All of it lives in `ludotek/web/style.css`. User-facing text stays in French.
 
 ## Tokens
 
@@ -35,7 +35,7 @@ Derived app values: `--accent-hover` (`#063fba`), `--radius-control` (8px, butto
 
 - **Host Grotesk** for the title, dialog headings, card titles, big figures and disclosure summaries: bold (650–800), tight tracking (−0.015 to −0.05em), compact line-height.
 - **Instrument Sans** for everything else: paragraphs, labels, controls.
-- Both fonts are **bundled** in `gamelib/web/fonts/` (variable woff2, latin subset, which covers French accents and œ) and served by `server.STATIC`. The app must work offline, so never load them from Google Fonts. Licenses: `OFL-*.txt` next to the files. Titles in other scripts (Japanese, Cyrillic…) fall back to `sans-serif`.
+- Both fonts are **bundled** in `ludotek/web/fonts/` (variable woff2, latin subset, which covers French accents and œ) and served by `server.STATIC`. The app must work offline, so never load them from Google Fonts. Licenses: `OFL-*.txt` next to the files. Titles in other scripts (Japanese, Cyrillic…) fall back to `sans-serif`.
 - Labels and metadata are smaller but keep `ink-secondary` contrast (≈8:1 on white). Never lighten text below that.
 
 ## Color rules
