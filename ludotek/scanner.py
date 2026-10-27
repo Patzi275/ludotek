@@ -118,16 +118,16 @@ def scan():
         LAST_SCAN = now
     if first:
         log.info(t("log.scanned", items=len(found), pending=len(PENDING)))
-    _log_changes("log.new", added)
-    _log_changes("log.back", back_again)
-    _log_changes("log.gone", gone)
+    _log_changes("log.new", "log.new_many", added)
+    _log_changes("log.back", "log.back_many", back_again)
+    _log_changes("log.gone", "log.gone_many", gone)
     save_db()
 
 
-def _log_changes(key, names):
-    """One line per name ("log.new"), or a count ("log.new_many") beyond MAX_LISTED."""
+def _log_changes(key, many_key, names):
+    """One line per name, or a single count line beyond MAX_LISTED."""
     if len(names) > MAX_LISTED:
-        log.info(t(key + "_many", n=len(names)))
+        log.info(t(many_key, n=len(names)))
     else:
         for name in names:
             log.info(t(key, name=name))
