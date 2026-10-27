@@ -1,3 +1,4 @@
+# On every pull request: tests, Windows build and smoke test (exe downloadable as an artifact).
 # On every push to main:
 #   1. release-please reads the Conventional Commits (feat:, fix:, feat!:) and keeps a
 #      "release X.Y.Z" PR up to date (version bump + CHANGELOG.md). Merging that PR
@@ -11,6 +12,7 @@ name: Build and release
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -22,6 +24,7 @@ concurrency:
 
 jobs:
   release-please:
+    if: github.event_name != 'pull_request'  # releases only come from main
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -39,6 +42,8 @@ jobs:
 
   build:
     needs: release-please
+    # Also runs when release-please was skipped (pull requests), not when it failed.
+    if: ${{ !failure() && !cancelled() }}
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
