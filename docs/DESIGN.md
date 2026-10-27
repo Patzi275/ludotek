@@ -4,6 +4,13 @@ The UI is a practical tool: a light, open page where the games are easy to scan.
 
 All of it lives in `ludotek/web/style.css`. Labels below are quoted in English; the French ones come from `fr.json`. Texts come from the translation catalogs (`ludotek/web/i18n/`): layouts must hold in every language, and English labels are often longer than French ones.
 
+## Logo and icons
+
+- `assets/logo.png` is the source: black pixel art on a 6×6 block grid, transparent background.
+- It is only ever scaled by **integer factors with nearest-neighbour** (`script/make_icon.py`), so edges stay crisp at every size. Never resample it with smoothing.
+- App icons (`assets/ludotek.ico`, `ludotek/web/favicon.png`) put the logo on a **white rounded tile**: the logo takes 6/8 of the side, with a 1/8 margin. The corner radius equals that margin, so the rounding never touches the logo. A 1px `--dp-color-rule` hairline keeps the tile visible on white. This way it reads on dark taskbars, dark Explorer windows and dark browser tabs.
+- On dark backgrounds without a tile (the README in GitHub's dark theme), use `assets/logo-dark.png`, the same logo in white.
+
 ## Tokens
 
 The `--dp-*` values in `:root` are authoritative. Do not change them locally; derive new values from them instead.

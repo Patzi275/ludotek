@@ -1,7 +1,15 @@
-# Ludotek
 
-*From the French* ludothèque, *a game library.*
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.png">
+    <img src="assets/logo.png" width="96" height="96" alt="Ludotek">
+  </picture>
+</p>
 
+<h1 align="center">Ludotek</h1>
+
+<p align="center"><em>From the French</em> ludothèque, <em>a game library.</em></p>
+<br/>
 A portable game library for a folder of PC games. Drop `Ludotek.exe` next to your games and it turns the folder into a browsable library. Nothing to install, it works offline, and it never writes to your user profile.
 
 Available in English and French. Ludotek picks your system language and you can switch in **Settings**.
