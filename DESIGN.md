@@ -1,4 +1,4 @@
-# Design — Ludex
+# Design — Ludotek
 
 The UI is a practical tool: a light, open page where the games are easy to scan. It uses the "Software" design system (light ground, dark tight headings, one electric-blue action color, white rounded cards), adapted to the app. The app is not a marketing page, so the hero diagram, pricing cards and editorial photos from that system are not used.
 

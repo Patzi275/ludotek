@@ -162,7 +162,7 @@ $("#rescan").addEventListener("click", async () => { await post("/api/rescan"); 
 $("#quit").addEventListener("click", async () => {
   if (!confirm("Arrêter la bibliothèque ?")) return;
   await post("/api/quit").catch(() => {});
-  document.body.innerHTML = '<p style="padding:40px;text-align:center;color:var(--dp-color-ink-secondary)">Ludex est arrêté. Tu peux fermer cet onglet.</p>';
+  document.body.innerHTML = '<p style="padding:40px;text-align:center;color:var(--dp-color-ink-secondary)">Ludotek est arrêté. Tu peux fermer cet onglet.</p>';
 });
 $("#mStatus").addEventListener("change", e => post("/api/update/" + openId, {status: e.target.value}).then(() => load(true)));
 $("#mExe").addEventListener("change", e => post("/api/update/" + openId, {exe: e.target.value}).then(() => load(true)));

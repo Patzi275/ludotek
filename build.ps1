@@ -1,10 +1,10 @@
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$specFile = Join-Path $projectRoot "ludex.spec"
+$specFile = Join-Path $projectRoot "ludotek.spec"
 $webDirectory = Join-Path $projectRoot "gamelib\web"
 $distDirectory = Join-Path $projectRoot "dist"
-$executable = Join-Path $distDirectory "Ludex.exe"
+$executable = Join-Path $distDirectory "Ludotek.exe"
 
 if (-not (Test-Path -LiteralPath $specFile -PathType Leaf)) {
     throw "Fichier de build introuvable : $specFile"
@@ -33,7 +33,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "PyInstaller est introuvable. Installez-le avec : $($python.Source) -m pip install pyinstaller"
 }
 
-Write-Host "Construction de Ludex.exe avec PyInstaller $pyinstallerCheck..."
+Write-Host "Construction de Ludotek.exe avec PyInstaller $pyinstallerCheck..."
 
 $arguments = @(
     "-m", "PyInstaller",

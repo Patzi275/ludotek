@@ -11,11 +11,11 @@ FROZEN = getattr(sys, "frozen", False)
 APP_DIR = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent
 ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
 # Which folder to watch. The only file stored outside the watched folder: it sits next to the app.
-SETTINGS_PATH = APP_DIR / ".ludex.json"
+SETTINGS_PATH = APP_DIR / ".ludotek.json"
 WEB_DIR = Path(__file__).resolve().parent / "web"
 
 # Our own files, in case the app sits inside the games folder.
-IGNORED = {"library.py", "gamelib", "bibliotheque.py", "bibliotheque.exe", "ludex.exe", "desktop.ini", "thumbs.db"}
+IGNORED = {"library.py", "gamelib", "bibliotheque.py", "bibliotheque.exe", "ludotek.exe", "desktop.ini", "thumbs.db"}
 if FROZEN:
     IGNORED.add(Path(sys.executable).name.lower())
 

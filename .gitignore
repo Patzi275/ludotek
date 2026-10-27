@@ -12,8 +12,11 @@ dist/
 .bibliotheque.json
 .bibliotheque.json.tmp
 .bibliotheque/
-.ludex.json
-.ludex.json.tmp
+.ludotek.json
+.ludotek.json.tmp
+
+# Local working notes (plans, scratch), never committed
+.local/
 
 # Tool caches (.impeccable/config.json is shared config: keep it)
 .impeccable/hook.cache.json

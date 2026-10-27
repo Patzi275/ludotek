@@ -1,1 +1,1 @@
-"""Ludex: a portable game library manager (see library.py for the entry point)."""
+"""Ludotek: a portable game library manager (see library.py for the entry point)."""

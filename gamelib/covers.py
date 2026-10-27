@@ -24,7 +24,7 @@ def sniff_image(data):
 def fetch_image(url):
     if not re.match(r"^https?://", url or "", re.I):
         raise ValueError("URL invalide (http ou https attendu).")
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 Ludex"})
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 Ludotek"})
     with urllib.request.urlopen(req, timeout=20) as r:
         data = r.read(MAX_IMAGE + 1)
     if len(data) > MAX_IMAGE:

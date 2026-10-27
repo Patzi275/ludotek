@@ -38,7 +38,7 @@ jobs:
         run: |
           $games = Join-Path $env:RUNNER_TEMP "games"
           New-Item -ItemType Directory -Force -Path (Join-Path $games "Test Game") | Out-Null
-          $proc = Start-Process -FilePath "dist\Ludex.exe" -ArgumentList "`"$games`"", "--no-browser" -PassThru -WindowStyle Hidden
+          $proc = Start-Process -FilePath "dist\Ludotek.exe" -ArgumentList "`"$games`"", "--no-browser" -PassThru -WindowStyle Hidden
           $base = "http://127.0.0.1:8765"
           try {
             $page = $null
@@ -47,7 +47,7 @@ jobs:
               try { $page = Invoke-WebRequest -UseBasicParsing "$base/" } catch {}
             }
             if (-not $page) { throw "L'exe ne répond pas sur $base." }
-            if ($page.Content -notmatch "<title>Ludex</title>") { throw "Page inattendue." }
+            if ($page.Content -notmatch "<title>Ludotek</title>") { throw "Page inattendue." }
             foreach ($f in "app.js", "style.css", "fonts/host-grotesk.woff2", "fonts/instrument-sans.woff2") {
               Invoke-WebRequest -UseBasicParsing "$base/$f" | Out-Null
             }
@@ -68,6 +68,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Ludex-${{ github.sha }}
-          path: dist/Ludex.exe
+          name: Ludotek-${{ github.sha }}
+          path: dist/Ludotek.exe
           if-no-files-found: error

@@ -1,12 +1,12 @@
-# Ludex — portable game library manager
+# Ludotek — portable game library manager
 
-A tool that **lives inside a PC games folder** and presents it as a library: it scans the folder, works out the state of each item (installed folder, archive to extract, executable), cleans up names, spots duplicates, watches for additions and removals, and lets you launch games, annotate them, and attach a cover and a description.
+Ludotek (from the French *ludothèque*, a game library) is a tool that **lives inside a PC games folder** and presents it as a library: it scans the folder, works out the state of each item (installed folder, archive to extract, executable), cleans up names, spots duplicates, watches for additions and removals, and lets you launch games, annotate them, and attach a cover and a description.
 
 ## Non-negotiable constraints
 
 - **Small layout**: `library.py` (entry point) + the `gamelib/` package (one module per concern) + `gamelib/web/` (HTML, CSS, JS of the UI). Keep it flat: no sub-packages, no extra layers unless needed.
 - **Standard library only** (Python 3.8+). No pip dependency at runtime. No front-end framework, no build step, no CDN: everything must work offline.
-- **Portable**: all library data lives in the watched folder, never in the user profile. The only exception is `.ludex.json` (which folder to watch), stored next to the app (`APP_DIR`).
+- **Portable**: all library data lives in the watched folder, never in the user profile. The only exception is `.ludotek.json` (which folder to watch), stored next to the app (`APP_DIR`).
 - **Language**: code, comments, docstrings and docs are in English. Everything the user sees stays in **French**: the UI, server error messages (shown as-is in toasts) and console output.
 - **End user on Windows**, without Python installed: the app ships as an `.exe` built with PyInstaller. Development happens on **WSL (Linux)**: the code must stay cross-platform (`os.startfile` on Windows, `open` on macOS, `xdg-open` on Linux).
 
@@ -27,11 +27,11 @@ PyInstaller does not cross-compile: the build must run **on Windows** (Windows P
 
 ```
 python -m pip install pyinstaller
-.\build.ps1                                   # -> dist\Ludex.exe
+.\build.ps1                                   # -> dist\Ludotek.exe
 ```
 
-- `ludex.spec` is the **only** place for build settings (name, data files, console window). Paths in it are relative to `SPECPATH`: never commit absolute paths. Both scripts just run it with `--distpath dist --workpath build`.
-- **CI**: `.github/workflows/build-exe.yml` runs `build.ps1` on a Windows runner on every push to `main` (and manually), smoke-tests the exe (page, UI files, fonts, scan, Quitter) and uploads `Ludex.exe` as an artifact. Keep the PyInstaller version pinned there.
+- `ludotek.spec` is the **only** place for build settings (name, data files, console window). Paths in it are relative to `SPECPATH`: never commit absolute paths. Both scripts just run it with `--distpath dist --workpath build`.
+- **CI**: `.github/workflows/build-exe.yml` runs `build.ps1` on a Windows runner on every push to `main` (and manually), smoke-tests the exe (page, UI files, fonts, scan, Quitter) and uploads `Ludotek.exe` as an artifact. Keep the PyInstaller version pinned there.
 - `build.sh` is for Git Bash on Windows; on Linux/WSL it produces a Linux binary (handy to check that `gamelib/web` is bundled, useless for end users).
 - `datas` must include `gamelib/web`: without it the exe starts but serves no page. Python users who run `library.py` directly need the `gamelib/` folder next to it.
 - The exe opens a **console window on purpose** (`console=True`): closing it, Ctrl+C or the UI's "Quitter" button stops the server. Without it the server would keep running invisibly after the browser tab is closed. Keep the "Quitter" button. Closing the window kills the process without calling `save_db()`, which is fine because every change is already saved when it happens. `config.FROZEN`/`APP_DIR` handle the `sys.frozen` case, and the exe's own name is added to `IGNORED`.
@@ -39,12 +39,12 @@ python -m pip install pyinstaller
 ## Architecture
 
 ```
-library.py            entry point: main() starts the scan, the worker threads and the server
+library.py            entry point: main() sets up logging, opens the server, prints the banner, runs the first scan, starts the worker threads
 gamelib/
-  config.py           paths (ROOT, DB_PATH, COVERS_DIR, WEB_DIR), settings file, set_root, port, token, limits, file types, IGNORED
+  config.py           paths (ROOT, DB_PATH, COVERS_DIR, WEB_DIR), settings file (load/save_settings), set_root, port, token, limits, file types, IGNORED
   names.py            clean_name, match_key, detect_source, item_id + their regexes
   storage.py          DB, LOCK, PREV_SEEN, reload, save_db
-  scanner.py          scan, measure_dir, worker, rescan_loop, reset, CURRENT, PENDING, WORK + EXE_BLACKLIST, SKIP_DIRS
+  scanner.py          scan, entry_kind, measure_dir, worker, rescan_loop, reset, CURRENT, PENDING, WORK + EXE_BLACKLIST, SKIP_DIRS
   covers.py           sniff_image, fetch_image, read_cover, set_cover, clear_cover
   system.py           open_path, reveal_path (per OS), pick_folder (tkinter dialog)
   api.py              payload() + POST actions (ACTIONS table, UPDATABLE whitelist, ApiError)
@@ -58,7 +58,7 @@ Dependencies go one way: `config` <- `names`, `storage` <- `scanner`, `covers`, 
 - **Storage**: `DB` is a dict loaded from `.bibliotheque.json`. `save_db()` writes atomically (`.tmp` file then `os.replace`) and only if the content changed. Every read or write of `DB`, `CURRENT` or `PENDING` happens under `LOCK` (RLock).
 - **Scan**: `scan()` reads the top level of the folder, then updates `CURRENT` and `DB` (vanished items moved to `DB["removed"]`, and restored if they come back). Folders whose `mtime` changed are queued for `worker()`, which computes the size and the list of executables via `measure_dir` (depth ≤ 3, sorted by increasing depth then decreasing size). `rescan_loop()` runs a scan every `RESCAN_EVERY` seconds.
 - **Module state**: `config.ROOT`, `config.DB_PATH`, `config.COVERS_DIR`, `storage.PREV_SEEN` and `scanner.LAST_SCAN` are reassigned at runtime, so always read them through their module (`config.ROOT`), never via `from .config import ROOT`. `DB`, `CURRENT` and `PENDING` are only mutated in place, so importing them directly is fine.
-- **Watched folder**: chosen at start (command line, then `.ludex.json` if the folder still exists, then `APP_DIR`) and changeable from the UI (`api.settings`): under `LOCK` it saves the old DB, calls `config.set_root`, `storage.reload`, `scanner.reset`, then scans. `scan()` and `worker()` remember the root they started with and drop their results if it changed meanwhile.
+- **Watched folder**: chosen at start (command line, then `.ludotek.json` if the folder still exists, then `APP_DIR`) and changeable from the UI (`api.settings`): under `LOCK` it saves the old DB, calls `config.set_root`, `storage.reload`, `scanner.reset`, then scans. `scan()` and `worker()` remember the root they started with and drop their results if it changed meanwhile.
 - **Covers**: `sniff_image` validates the format from the bytes (PNG/JPG/GIF/WEBP), `fetch_image` downloads from an http(s) URL, and `set_cover` / `clear_cover` manage the `.bibliotheque/covers/<id>.<ext>` files.
 - **API**: each POST action is a function `(iid, req) -> dict` registered in `api.ACTIONS`; `req` is `{"raw", "type", "json"}` (`json` is always a dict). Errors shown to the user are raised as `ApiError(status, "message en français")`. `quit` is handled in `server.py` because it stops the server.
 - **UI** (`gamelib/web/`): grid rendered in vanilla JS. The token is injected into `index.html` (`<meta name="biblio-token">`, replacing `__TOKEN__`) and read by `app.js`. The UI polls `/api/library` every 4 s and only re-renders if the JSON changed. The details dialog does not overwrite a focused `textarea`.
@@ -76,6 +76,8 @@ Dependencies go one way: `config` <- `names`, `storage` <- `scanner`, `covers`, 
 }
 ```
 
+`.ludotek.json` (next to the app, not in the watched folder): `{"root": "D:\\Jeux"}`. Unknown keys are kept when saving, so new settings can be added there.
+
 - `id` = first 12 hex characters of the SHA-1 of the file name. Renaming a file therefore creates a new item; the old one moves to `removed`.
 - "New" = `first_seen > last_seen_at` of the previous session (`PREV_SEEN`).
 - `DB` fields must stay backward compatible: always read with `.get(...)` and a default, never rename an existing key without a migration. Same for the data file and folder names (`.bibliotheque.json`, `.bibliotheque/`): existing libraries depend on them.
@@ -86,7 +88,7 @@ Dependencies go one way: `config` <- `names`, `storage` <- `scanner`, `covers`, 
 | Method | Route                | Purpose                                                       |
 | ------ | -------------------- | ------------------------------------------------------------- |
 | GET    | `/`                  | HTML page (the token is injected in place of `__TOKEN__`)     |
-| GET    | `/app.js`, `/style.css` | UI files (fixed list in `server.STATIC`)                   |
+| GET    | `/app.js`, `/style.css`, `/fonts/*.woff2` | UI files and fonts (fixed list in `server.STATIC`) |
 | GET    | `/api/library`       | Full state: `root`, `items`, `removed`                        |
 | GET    | `/covers/<id>.<ext>` | Cover image (name validated by `COVER_NAME_RE`)               |
 | POST   | `/api/rescan`        | Immediate scan                                                |
@@ -130,7 +132,7 @@ If a test suite is added, put it in `tests/` (pytest), without making it a runti
 
 - Python code: short functions, comments and docstrings in English, no unnecessary classes.
 - Logging: `log = logging.getLogger(__name__)` per module, configured once in `library.py` (`setup_logging`, French level names, stdout). Messages in French. Log events and errors (scan changes, folder analysis, actions, failed or refused requests), never the 4 s polling of `/api/library`; a repeating error is logged once (see `scanner._last_error`). Use `print` only for the startup banner.
-- Do not block the HTTP thread on long operations: heavy disk work goes through `WORK` and `worker()`. Tolerated exception: downloading a cover from a URL (20 s timeout).
+- Do not block the HTTP thread on long operations: heavy disk work goes through `WORK` and `worker()`. Tolerated exceptions: downloading a cover from a URL (20 s timeout) and the native folder dialog (`/api/browse`, waits for the user; one at a time).
 - Any new per-game data goes in `DB["items"][id]`, is exposed in `api.payload()` and, if editable, gets an entry in `api.UPDATABLE` (cleaning rule with type and size limit).
 - New `POST` endpoint: write the function in `api.py` and add it to `api.ACTIONS`. The token and Host checks already run at the top of `do_POST`.
 - New UI file: add it to `server.STATIC` (never serve paths built from the request).
@@ -138,6 +140,6 @@ If a test suite is added, put it in `tests/` (pytest), without making it a runti
 
 ## Ideas under consideration
 
-- Automatic covers via the SteamGridDB API, with a local cache.
+- Planned work (automatic covers via the Steam store search, controller / TV mode) is detailed in `.local/plan.md` when present (local notes, not committed).
 - On WSL, detect the environment and use `explorer.exe` / `cmd.exe /c start` to really launch Windows apps.
 - Possible port to a native stack (Godot or C#/Avalonia) that produces a Windows `.exe` from Linux. The cleanup, duplicate and executable-detection logic is the part to keep as-is.

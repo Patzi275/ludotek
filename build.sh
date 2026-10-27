@@ -2,10 +2,10 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-SPEC_FILE="$PROJECT_ROOT/ludex.spec"
+SPEC_FILE="$PROJECT_ROOT/ludotek.spec"
 WEB_DIRECTORY="$PROJECT_ROOT/gamelib/web"
 DIST_DIRECTORY="$PROJECT_ROOT/dist"
-EXECUTABLE="$DIST_DIRECTORY/Ludex.exe"
+EXECUTABLE="$DIST_DIRECTORY/Ludotek.exe"
 
 if [[ ! -f "$SPEC_FILE" ]]; then
     echo "Fichier de build introuvable : $SPEC_FILE" >&2
@@ -40,16 +40,16 @@ fi
 
 case "$(uname -s)" in
     MINGW*|MSYS*|CYGWIN*)
-        EXECUTABLE="$DIST_DIRECTORY/Ludex.exe"
+        EXECUTABLE="$DIST_DIRECTORY/Ludotek.exe"
         ;;
     *)
         # PyInstaller builds for the current OS: on Linux/WSL this is a Linux binary, not the Windows .exe.
         echo "Attention : ce build produit un exécutable Linux. Pour le .exe Windows, lance build.ps1 sous Windows." >&2
-        EXECUTABLE="$DIST_DIRECTORY/Ludex"
+        EXECUTABLE="$DIST_DIRECTORY/Ludotek"
         ;;
 esac
 
-echo "Construction de Ludex avec PyInstaller $("$PYTHON" -m PyInstaller --version)..."
+echo "Construction de Ludotek avec PyInstaller $("$PYTHON" -m PyInstaller --version)..."
 
 cd "$PROJECT_ROOT"
 "$PYTHON" -m PyInstaller \

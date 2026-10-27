@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-# Single source of the build settings. Run: pyinstaller --clean --noconfirm ludex.spec
+# Single source of the build settings. Run: pyinstaller --clean --noconfirm ludotek.spec
 # (or build.ps1 / build.sh). Build on Windows to get a Windows .exe: PyInstaller does not cross-compile.
 import os
 
@@ -16,7 +16,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name="Ludex",
+    name="Ludotek",
     upx=True,
     # Visible console on purpose: closing it stops the server, so nothing keeps running
     # in the background after the browser tab is closed.

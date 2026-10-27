@@ -1,6 +1,8 @@
-# Ludex
+# Ludotek
 
-A portable game library for a folder of PC games. Drop `Ludex.exe` next to your games and it turns the folder into a browsable library. Nothing to install, it works offline, and it never writes to your user profile.
+*From the French* ludothèque, *a game library.*
+
+A portable game library for a folder of PC games. Drop `Ludotek.exe` next to your games and it turns the folder into a browsable library. Nothing to install, it works offline, and it never writes to your user profile.
 
 The interface is in French.
 
@@ -15,11 +17,11 @@ The interface is in French.
 
 ## Usage
 
-1. Download `Ludex.exe` from the latest successful [build workflow](../../actions/workflows/build-exe.yml) run (Artifacts section).
+1. Download `Ludotek.exe` from the latest successful [build workflow](../../actions/workflows/build-exe.yml) run (Artifacts section, requires a GitHub account).
 2. Put it in your games folder and run it, or choose another folder later in **Réglages**.
-3. The library opens in your browser. Close the console window (or click **Quitter**) to stop it.
+3. The library opens in your browser. The console window logs what Ludotek does; close it (or click **Quitter**) to stop the app.
 
-Library data is stored in the games folder itself (`.bibliotheque.json`, `.bibliotheque/`). The chosen folder is remembered in `.ludex.json`, next to the exe.
+Library data is stored in the games folder itself (`.bibliotheque.json`, `.bibliotheque/`). The chosen folder is remembered in `.ludotek.json`, next to the exe.
 
 ## From source
 
@@ -30,7 +32,11 @@ python3 library.py "D:\Jeux"         # or no argument: saved folder, else the sc
 python3 library.py --no-browser
 ```
 
-Build the exe on Windows: `pip install pyinstaller`, then `.\build.ps1` (output: `dist\Ludex.exe`). Every push to `main` also builds it in CI.
+Build the exe on Windows: `pip install pyinstaller`, then `.\build.ps1` (output: `dist\Ludotek.exe`). Every push to `main` also builds it in CI.
+
+## Roadmap
+
+Automatic covers and a controller-friendly TV mode.
 
 ## Security
 

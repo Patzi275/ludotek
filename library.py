@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ludex — a game library manager that lives inside the games folder.
+Ludotek — a game library manager that lives inside the games folder.
 
 Usage:
     1. Put library.py and the gamelib/ folder in the games folder.
@@ -39,7 +39,7 @@ def main():
         raise SystemExit(f"Dossier introuvable : {config.ROOT}")
     server = make_server()
     url = f"http://127.0.0.1:{server.server_address[1]}/"
-    print(f"Ludex     : {config.ROOT}")
+    print(f"Ludotek   : {config.ROOT}")
     print(f"Interface : {url}")
     print("Pour arrêter : ferme cette fenêtre, Ctrl+C, ou le bouton Quitter.")
     print("Fermer l'onglet du navigateur n'arrête pas l'application.")
