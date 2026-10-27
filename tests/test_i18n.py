@@ -23,7 +23,7 @@ def used_keys():
     """Keys referenced literally: data-i18n* attributes, t("...") and tn("...") calls."""
     keys = set(re.findall(r'data-i18n(?:-[a-z-]+)?="([^"]+)"', HTML))
     keys |= set(re.findall(r'\bt\("([^"]+)"', JS + PY))
-    for base in re.findall(r'\btn\("([^"]+)"', JS):  # plural: both forms must exist
+    for base in re.findall(r'\btn\("([^"]+)"', JS + PY):  # plural: both forms must exist
         keys |= {base + ".one", base + ".other"}
     return keys
 
@@ -75,9 +75,16 @@ def fake_catalogs(monkeypatch):
 
 def test_plurals_follow_the_language(fake_catalogs, monkeypatch):
     monkeypatch.setattr(config, "LANGUAGE", "fr")
-    assert [i18n.t("n", n=k) for k in (0, 1, 2)] == ["0 jeu", "1 jeu", "2 jeux"]
+    assert [i18n.tn("n", k) for k in (0, 1, 2)] == ["0 jeu", "1 jeu", "2 jeux"]
     monkeypatch.setattr(config, "LANGUAGE", "en")
-    assert [i18n.t("n", n=k) for k in (0, 1, 2)] == ["0 games", "1 game", "2 games"]
+    assert [i18n.tn("n", k) for k in (0, 1, 2)] == ["0 games", "1 game", "2 games"]
+
+
+def test_n_is_an_ordinary_placeholder_in_t(fake_catalogs, monkeypatch):
+    # Regression: t(key, n=…) used to look up "key.one"/"key.other" and print the raw key.
+    monkeypatch.setattr(i18n, "_cache", {"en": {"many": "New: {n} items."}, "fr": {}})
+    monkeypatch.setattr(config, "LANGUAGE", "en")
+    assert i18n.t("many", n=12) == "New: 12 items."
 
 
 def test_fallback_to_english_then_to_the_key(fake_catalogs, monkeypatch):

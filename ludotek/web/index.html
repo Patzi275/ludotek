@@ -19,6 +19,7 @@
   </div>
   <div class="spacer"></div>
   <button class="btn" id="settings" data-i18n="header.settings"></button>
+  <button class="btn" id="enrich" data-i18n="header.enrich" data-i18n-title="header.enrich_title"></button>
   <button class="btn" id="rescan" data-i18n="header.rescan"></button>
   <button class="btn danger" id="quit" data-i18n="header.quit"></button>
 </header>
@@ -67,11 +68,13 @@
           <button class="btn" id="mPick" data-i18n="details.pick_image"></button>
           <button class="btn" id="mUrl" data-i18n="details.from_url"></button>
           <button class="btn danger" id="mUncover" data-i18n="details.remove_cover"></button>
+          <button class="btn" id="mSteam" data-i18n="details.steam_search"></button>
         </div>
         <div class="hint" data-i18n="details.cover_hint"></div>
         <input type="file" id="mFileInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
       </div>
     </div>
+    <div class="candidates" id="mCandidates" hidden></div>
     <div class="field">
       <label for="mDesc" data-i18n="details.description"></label>
       <textarea id="mDesc" data-i18n-placeholder="details.description_placeholder"></textarea>

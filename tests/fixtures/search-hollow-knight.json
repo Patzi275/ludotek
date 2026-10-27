@@ -1,0 +1,35 @@
+{
+ "total": 5,
+ "items": [
+  {
+   "type": "app",
+   "name": "Hollow Knight",
+   "id": 367520,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/367520/fba7289f4c7e90ae9c0caa87e4225f3f9111d7dd/capsule_231x87.jpg?t=1776125684"
+  },
+  {
+   "type": "app",
+   "name": "Hollow Knight: Silksong",
+   "id": 1030300,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1030300/b73ec03fbdb9e21e3c59eb7e59966949d0c17f29/capsule_231x87.jpg?t=1776125736"
+  },
+  {
+   "type": "app",
+   "name": "Hollow Knight - Official Soundtrack",
+   "id": 598190,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/598190/capsule_231x87.jpg?t=1581550241"
+  },
+  {
+   "type": "app",
+   "name": "Hollow Knight: Silksong - Official Soundtrack",
+   "id": 3928720,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3928720/417c1be792d34dfef62c23cb1f796453c622e760/capsule_231x87.jpg?t=1757298295"
+  },
+  {
+   "type": "app",
+   "name": "Hollow Knight - Gods & Nightmares",
+   "id": 916000,
+   "tiny_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/916000/capsule_231x87.jpg?t=1581557931"
+  }
+ ]
+}

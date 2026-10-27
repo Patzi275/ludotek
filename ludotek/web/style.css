@@ -43,6 +43,8 @@ h1,h2{font-family:var(--font-display);font-weight:700;letter-spacing:-.025em;lin
 /* ---- header + facts strip */
 header{display:flex;align-items:center;gap:12px;padding:28px var(--inline) 18px;flex-wrap:wrap}
 h1{margin:0 0 4px;font-size:30px}
+/* The title block shrinks (the path breaks inside it) so the header buttons stay on one line. */
+header>div:first-child{flex:1 1 320px;min-width:0}
 .version{font-family:var(--font-text);font-size:var(--dp-typography-metadata);font-weight:500;letter-spacing:0;color:var(--dp-color-ink-secondary);vertical-align:middle}
 .path{color:var(--dp-color-ink-secondary);font-size:var(--dp-typography-metadata);word-break:break-all}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:0 var(--inline);
@@ -180,6 +182,18 @@ details.removed li{margin:4px 0;font-size:var(--dp-typography-small)}
 .mhead-info .file{margin-bottom:12px}
 .cover-btns{display:flex;gap:6px;flex-wrap:wrap}
 .cover-btns .btn{min-height:36px;padding:6px 10px;font-size:var(--dp-typography-metadata)}
+/* Steam results to pick from (details dialog): small white tiles, cover on top. */
+.candidates{margin:-2px 0 18px}
+.candidates .hint{margin:0 0 8px}
+.cand-list{display:flex;flex-wrap:wrap;gap:10px}
+.cand{flex:0 0 88px;display:flex;flex-direction:column;gap:6px;padding:6px;text-align:left;background:var(--dp-color-panel);
+  border:var(--hairline);border-radius:10px;font-size:var(--dp-typography-label);line-height:1.3;
+  transition:border-color var(--ease),transform var(--ease)}
+.cand:hover{border-color:var(--dp-color-accent);transform:translateY(-1px)}
+.cand img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:6px;background:var(--dp-color-ground-muted)}
+.cand span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* Running Steam fill: the header button doubles as the stop button. */
+#enrich.running{color:var(--dp-color-accent);border-color:var(--dp-color-accent)}
 .hint{margin-top:8px;color:var(--dp-color-ink-secondary);font-size:var(--dp-typography-label);line-height:1.5}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
 .field label{font-size:var(--dp-typography-metadata);font-weight:600;color:var(--dp-color-ink-secondary)}
@@ -227,5 +241,5 @@ details.removed li{margin:4px 0;font-size:var(--dp-typography-small)}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition:none!important}
-  .btn:hover,.card:hover,.star:hover{transform:none}
+  .btn:hover,.card:hover,.star:hover,.cand:hover{transform:none}
 }
